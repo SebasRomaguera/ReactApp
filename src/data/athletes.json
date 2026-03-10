@@ -1,0 +1,80 @@
+[
+  {
+    "id": 1,
+    "name": "Carlos Martínez",
+    "age": 22,
+    "category": "Sprint",
+    "event": "100m",
+    "personalBest": "10.45s",
+    "coachId": 1,
+    "status": "active",
+    "joinedDate": "2023-01-15",
+    "nationality": "Spanish",
+    "avatarInitials": "CM"
+  },
+  {
+    "id": 2,
+    "name": "Laura Gómez",
+    "age": 25,
+    "category": "Long Distance",
+    "event": "Marathon",
+    "personalBest": "2h32m",
+    "coachId": 2,
+    "status": "active",
+    "joinedDate": "2022-03-10",
+    "nationality": "Spanish",
+    "avatarInitials": "LG"
+  },
+  {
+    "id": 3,
+    "name": "Ahmed Khalil",
+    "age": 20,
+    "category": "Jump",
+    "event": "High Jump",
+    "personalBest": "2.15m",
+    "coachId": 1,
+    "status": "active",
+    "joinedDate": "2024-02-20",
+    "nationality": "Moroccan",
+    "avatarInitials": "AK"
+  },
+  {
+    "id": 4,
+    "name": "Sofia Reyes",
+    "age": 23,
+    "category": "Throw",
+    "event": "Javelin",
+    "personalBest": "58.30m",
+    "coachId": 3,
+    "status": "inactive",
+    "joinedDate": "2021-09-05",
+    "nationality": "Colombian",
+    "avatarInitials": "SR"
+  },
+  {
+    "id": 5,
+    "name": "Tomás Nkosi",
+    "age": 19,
+    "category": "Sprint",
+    "event": "200m",
+    "personalBest": "20.88s",
+    "coachId": 2,
+    "status": "active",
+    "joinedDate": "2024-06-01",
+    "nationality": "South African",
+    "avatarInitials": "TN"
+  },
+  {
+    "id": 6,
+    "name": "Elena Petrov",
+    "age": 27,
+    "category": "Long Distance",
+    "event": "5000m",
+    "personalBest": "15m20s",
+    "coachId": 3,
+    "status": "active",
+    "joinedDate": "2020-11-12",
+    "nationality": "Russian",
+    "avatarInitials": "EP"
+  }
+]

@@ -1,0 +1,41 @@
+[
+  {
+    "id": 1,
+    "name": "Miguel Fernández",
+    "age": 45,
+    "specialty": "Sprint & Jumps",
+    "experience": "20 years",
+    "certificationLevel": "Level 3 - National",
+    "athleteCount": 8,
+    "email": "miguel.fernandez@athleticsclub.com",
+    "phone": "+34 612 345 678",
+    "status": "active",
+    "avatarInitials": "MF"
+  },
+  {
+    "id": 2,
+    "name": "Ana Torres",
+    "age": 38,
+    "specialty": "Long Distance",
+    "experience": "12 years",
+    "certificationLevel": "Level 2 - Regional",
+    "athleteCount": 6,
+    "email": "ana.torres@athleticsclub.com",
+    "phone": "+34 623 456 789",
+    "status": "active",
+    "avatarInitials": "AT"
+  },
+  {
+    "id": 3,
+    "name": "Roberto Silva",
+    "age": 52,
+    "specialty": "Throws & Field",
+    "experience": "28 years",
+    "certificationLevel": "Level 3 - National",
+    "athleteCount": 5,
+    "email": "roberto.silva@athleticsclub.com",
+    "phone": "+34 634 567 890",
+    "status": "active",
+    "avatarInitials": "RS"
+  }
+]
