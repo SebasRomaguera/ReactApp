@@ -18,6 +18,7 @@ export default function Header() {
           <NavLink to="/athletes" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Athletes</NavLink>
           <NavLink to="/coaches"  className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Coaches</NavLink>
           <NavLink to="/schedule" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Schedule</NavLink>
+          <NavLink to="/competitions" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Competitions</NavLink>
         </nav>
       </div>
     </header>

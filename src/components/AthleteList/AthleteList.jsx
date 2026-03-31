@@ -1,22 +1,17 @@
 import AthleteCard from '../AthleteCard/AthleteCard';
+import EmptyState from '../common/EmptyState/EmptyState';
 
-export default function AthleteList({ athletes, onEdit, onDelete }) {
+export default function AthleteList({ athletes }) {
   if (!athletes || athletes.length === 0) {
-    return (
-      <div className="empty-state">
-        <p>No athletes found. Add one using the form above!</p>
-      </div>
-    );
+    return <EmptyState message="No athletes found for the selected filters." />;
   }
 
   return (
     <div className="grid-cards">
       {athletes.map(athlete => (
         <AthleteCard
-          key={athlete.id}
+          key={athlete.publicId || athlete.id}
           athlete={athlete}
-          onEdit={onEdit}
-          onDelete={onDelete}
         />
       ))}
     </div>

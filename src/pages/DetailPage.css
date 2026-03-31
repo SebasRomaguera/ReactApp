@@ -1,0 +1,22 @@
+.detail-page {
+  padding: 1.5rem;
+}
+
+.detail-page-header {
+  margin-bottom: 1rem;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.detail-description {
+  margin-top: 1rem;
+  color: var(--color-text-muted);
+}
+
+.detail-back {
+  margin-top: 1.5rem;
+}

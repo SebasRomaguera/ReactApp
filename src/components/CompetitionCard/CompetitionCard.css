@@ -1,0 +1,40 @@
+.competition-card {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.competition-card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.competition-card-top h3 {
+  font-size: 1.05rem;
+}
+
+.competition-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+}
+
+.badge-scheduled {
+  background: #dde8f7;
+  color: #1a3a5c;
+}
+
+.badge-finished {
+  background: #d4f5e2;
+  color: #1a7a42;
+}
+
+.badge-cancelled {
+  background: #fde8ea;
+  color: #a81b26;
+}

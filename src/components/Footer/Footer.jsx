@@ -16,6 +16,7 @@ export default function Footer() {
           <span>Athletes</span>
           <span>Coaches</span>
           <span>Schedule</span>
+          <span>Competitions</span>
         </div>
       </div>
     </footer>

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import './CoachCard.css';
 
 export default function CoachCard({ coach }) {
@@ -34,6 +35,12 @@ export default function CoachCard({ coach }) {
       <div className="coach-card-contact">
         <a href={`mailto:${coach.email}`} className="contact-link">✉️ {coach.email}</a>
         <span className="contact-link">📞 {coach.phone}</span>
+      </div>
+
+      <div className="coach-card-actions">
+        <Link className="btn btn-primary btn-sm" to={`/coaches/${coach.publicId || coach.id}`}>
+          View detail
+        </Link>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import './AthleteForm.css';
 
 const EMPTY_FORM = {
@@ -8,25 +8,9 @@ const EMPTY_FORM = {
 
 const CATEGORIES = ['Sprint', 'Long Distance', 'Jump', 'Throw', 'Multi-event'];
 
-export default function AthleteForm({ onAddAthlete, onUpdateAthlete, editingAthlete, onCancelEdit }) {
+export default function AthleteForm({ onAddAthlete }) {
   const [form, setForm] = useState(EMPTY_FORM);
   const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    // When a card enters edit mode, hydrate the form with that athlete's current values.
-    if (editingAthlete) {
-      setForm({
-        name:         editingAthlete.name,
-        age:          editingAthlete.age,
-        category:     editingAthlete.category,
-        event:        editingAthlete.event,
-        personalBest: editingAthlete.personalBest,
-        nationality:  editingAthlete.nationality,
-        status:       editingAthlete.status,
-      });
-      setVisible(true);
-    }
-  }, [editingAthlete]);
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -41,24 +25,19 @@ export default function AthleteForm({ onAddAthlete, onUpdateAthlete, editingAthl
     const initials = form.name.trim().split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
     const athleteData = { ...form, age: Number(form.age), avatarInitials: initials };
 
-    if (editingAthlete) {
-      onUpdateAthlete({ ...editingAthlete, ...athleteData });
-    } else {
-      onAddAthlete({ ...athleteData, id: Date.now(), joinedDate: new Date().toISOString().split('T')[0], coachId: 1 });
-    }
+    onAddAthlete({ ...athleteData, id: Date.now(), joinedDate: new Date().toISOString().split('T')[0], coachId: 1 });
 
     setForm(EMPTY_FORM);
     setVisible(false);
   }
 
   function handleCancel() {
-    // Reset local form state and notify parent to exit external edit mode.
+    // Reset local form state and close the form panel.
     setForm(EMPTY_FORM);
     setVisible(false);
-    if (onCancelEdit) onCancelEdit();
   }
 
-  if (!visible && !editingAthlete) {
+  if (!visible) {
     return (
       <div className="athlete-form-toggle">
         <button className="btn btn-gold" onClick={() => setVisible(true)}>
@@ -70,7 +49,7 @@ export default function AthleteForm({ onAddAthlete, onUpdateAthlete, editingAthl
 
   return (
     <div className="athlete-form-wrapper card">
-      <h3 className="form-heading">{editingAthlete ? '✏️ Edit Athlete' : '➕ Add New Athlete'}</h3>
+      <h3 className="form-heading">➕ Add New Athlete</h3>
       <form className="athlete-form" onSubmit={handleSubmit}>
         <div className="form-grid">
           <div className="form-group">
@@ -109,7 +88,7 @@ export default function AthleteForm({ onAddAthlete, onUpdateAthlete, editingAthl
         </div>
         <div className="form-actions">
           <button type="submit" className="btn btn-primary">
-            {editingAthlete ? 'Save Changes' : 'Add Athlete'}
+            Add Athlete
           </button>
           <button type="button" className="btn btn-outline" onClick={handleCancel}>
             Cancel

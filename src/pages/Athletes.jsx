@@ -1,17 +1,47 @@
-import { useState } from 'react';
-import athletesData from '../data/athletes.json';
+import { useEffect, useMemo, useState } from 'react';
+import { getList } from '../api/client';
+import { normalizeAthlete } from '../api/normalizers';
 import AthleteList from '../components/AthleteList/AthleteList';
-import AthleteForm from '../components/AthleteForm/AthleteForm';
+import LoadingState from '../components/common/LoadingState/LoadingState';
+import ErrorState from '../components/common/ErrorState/ErrorState';
 import './Athletes.css';
 
 export default function Athletes() {
-  const [athletes, setAthletes]       = useState(athletesData);
-  const [editingAthlete, setEditing]  = useState(null);
+  const [athletes, setAthletes]       = useState([]);
   const [filterStatus, setFilter]     = useState('all');
   const [filterCategory, setCategory] = useState('all');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  // Build category options from the source dataset to keep filter values stable.
-  const categories = [...new Set(athletesData.map(a => a.category))];
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadAthletes() {
+      setLoading(true);
+      setError('');
+
+      try {
+        const records = await getList('/people/athletes');
+        if (!isMounted) return;
+        setAthletes(records.map(normalizeAthlete));
+      } catch (requestError) {
+        if (!isMounted) return;
+        setError(requestError.message);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+
+    loadAthletes();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const categories = useMemo(() => {
+    return [...new Set(athletes.map(a => a.category).filter(Boolean))];
+  }, [athletes]);
 
   // Visible list is derived state: only athletes matching both active filters.
   const displayed = athletes.filter(a => {
@@ -19,23 +49,6 @@ export default function Athletes() {
     const categoryOk = filterCategory === 'all' || a.category === filterCategory;
     return statusOk && categoryOk;
   });
-
-  function handleAdd(newAthlete) {
-    setAthletes(prev => [...prev, newAthlete]);
-  }
-
-  function handleUpdate(updated) {
-    // Replace only the edited athlete by id and close edit mode.
-    setAthletes(prev => prev.map(a => a.id === updated.id ? updated : a));
-    setEditing(null);
-  }
-
-  function handleDelete(id) {
-    // Keep deletion explicit because this action is irreversible in local state.
-    if (window.confirm('Remove this athlete from the roster?')) {
-      setAthletes(prev => prev.filter(a => a.id !== id));
-    }
-  }
 
   const activeCount = athletes.filter(a => a.status === 'active').length;
 
@@ -69,14 +82,6 @@ export default function Athletes() {
         </div>
       </div>
 
-      {/* Form */}
-      <AthleteForm
-        onAddAthlete={handleAdd}
-        onUpdateAthlete={handleUpdate}
-        editingAthlete={editingAthlete}
-        onCancelEdit={() => setEditing(null)}
-      />
-
       {/* Filters */}
       <div className="athletes-filters">
         <div className="form-group filter-group">
@@ -97,8 +102,9 @@ export default function Athletes() {
         <span className="filter-count">{displayed.length} result{displayed.length !== 1 ? 's' : ''}</span>
       </div>
 
-      {/* List */}
-      <AthleteList athletes={displayed} onEdit={setEditing} onDelete={handleDelete} />
+      {loading ? <LoadingState label="Loading athletes from API..." /> : null}
+      {!loading && error ? <ErrorState message={error} /> : null}
+      {!loading && !error ? <AthleteList athletes={displayed} /> : null}
     </div>
   );
 }

@@ -1,6 +1,7 @@
+import { Link } from 'react-router-dom';
 import './AthleteCard.css';
 
-export default function AthleteCard({ athlete, onEdit, onDelete }) {
+export default function AthleteCard({ athlete }) {
   return (
     <div className="athlete-card card">
       <div className="athlete-card-header">
@@ -36,12 +37,9 @@ export default function AthleteCard({ athlete, onEdit, onDelete }) {
       </div>
 
       <div className="athlete-card-actions">
-        <button className="btn btn-outline btn-sm" onClick={() => onEdit(athlete)}>
-          ✏️ Edit
-        </button>
-        <button className="btn btn-danger btn-sm" onClick={() => onDelete(athlete.id)}>
-          🗑 Delete
-        </button>
+        <Link className="btn btn-primary btn-sm" to={`/athletes/${athlete.publicId || athlete.id}`}>
+          View detail
+        </Link>
       </div>
     </div>
   );

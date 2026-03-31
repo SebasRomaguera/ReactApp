@@ -1,9 +1,40 @@
-import { useState } from 'react';
-import coachesData from '../data/coaches.json';
+import { useEffect, useState } from 'react';
+import { getList } from '../api/client';
+import { normalizeCoach } from '../api/normalizers';
 import CoachList from '../components/CoachList/CoachList';
+import LoadingState from '../components/common/LoadingState/LoadingState';
+import ErrorState from '../components/common/ErrorState/ErrorState';
 
 export default function Coaches() {
-  const [coaches] = useState(coachesData);
+  const [coaches, setCoaches] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadCoaches() {
+      setLoading(true);
+      setError('');
+
+      try {
+        const records = await getList('/people/coaches');
+        if (!isMounted) return;
+        setCoaches(records.map(normalizeCoach));
+      } catch (requestError) {
+        if (!isMounted) return;
+        setError(requestError.message);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+
+    loadCoaches();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Aggregate total athlete load across the coaching staff.
   const totalAthletes = coaches.reduce((sum, c) => sum + c.athleteCount, 0);
@@ -32,7 +63,9 @@ export default function Coaches() {
         </div>
       </div>
 
-      <CoachList coaches={coaches} />
+      {loading ? <LoadingState label="Loading coaches from API..." /> : null}
+      {!loading && error ? <ErrorState message={error} /> : null}
+      {!loading && !error ? <CoachList coaches={coaches} /> : null}
     </div>
   );
 }

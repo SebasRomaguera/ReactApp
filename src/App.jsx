@@ -4,8 +4,12 @@ import Footer from './components/Footer/Footer';
 import MainLayout from './components/MainLayout/MainLayout';
 import Home from './pages/Home';
 import Athletes from './pages/Athletes';
+import AthleteDetail from './pages/AthleteDetail';
 import Coaches from './pages/Coaches';
+import CoachDetail from './pages/CoachDetail';
 import Schedule from './pages/Schedule';
+import Competitions from './pages/Competitions';
+import CompetitionDetail from './pages/CompetitionDetail';
 import './App.css';
 
 export default function App() {
@@ -18,8 +22,12 @@ export default function App() {
           <Routes>
             <Route path="/"         element={<Home />} />
             <Route path="/athletes" element={<Athletes />} />
+            <Route path="/athletes/:publicId" element={<AthleteDetail />} />
             <Route path="/coaches"  element={<Coaches />} />
+            <Route path="/coaches/:publicId" element={<CoachDetail />} />
             <Route path="/schedule" element={<Schedule />} />
+            <Route path="/competitions" element={<Competitions />} />
+            <Route path="/competitions/:publicId" element={<CompetitionDetail />} />
           </Routes>
         </MainLayout>
         <Footer />

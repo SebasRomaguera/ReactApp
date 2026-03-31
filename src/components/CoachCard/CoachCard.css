@@ -27,3 +27,8 @@
 }
 .contact-link { font-size: 0.8rem; color: var(--color-text-muted); }
 .contact-link:hover { color: var(--color-primary-mid); }
+
+.coach-card-actions {
+  border-top: 1px solid var(--color-border);
+  padding-top: 0.85rem;
+}

@@ -2,16 +2,17 @@ import { Link } from 'react-router-dom';
 import './Home.css';
 
 const FEATURES = [
-  { icon: '🏃', title: 'Athlete Management', desc: 'Track your athletes\' personal bests, events, and status.', path: '/athletes', cta: 'View Athletes' },
-  { icon: '🏅', title: 'Coach Roster',       desc: 'Manage coaching staff, specialties, and certifications.',    path: '/coaches',  cta: 'View Coaches'  },
-  { icon: '📅', title: 'Training Schedule',  desc: 'Plan and review training sessions, competitions, and recovery.', path: '/schedule', cta: 'View Schedule' },
+  { icon: '🏃', title: 'Athlete Directory', desc: 'Explore roster data and open each athlete detail page.', path: '/athletes', cta: 'View Athletes' },
+  { icon: '🏅', title: 'Coach Directory',   desc: 'Browse coaches and inspect detail profiles from the API.', path: '/coaches',  cta: 'View Coaches'  },
+  { icon: '📅', title: 'Training Agenda',   desc: 'Read club trainings and recovery sessions from backend data.', path: '/schedule', cta: 'View Schedule' },
+  { icon: '🏟', title: 'Competitions',      desc: 'Track scheduled and finished competitions with detail views.', path: '/competitions', cta: 'View Competitions' },
 ];
 
 const HIGHLIGHTS = [
-  { value: '6',  label: 'Athletes',        accent: '' },
-  { value: '3',  label: 'Coaches',         accent: 'accent-red' },
-  { value: '6',  label: 'Sessions / Week', accent: 'accent-gold' },
-  { value: '1',  label: 'Competition',     accent: 'accent-green' },
+  { value: '4',  label: 'User Stories',      accent: '' },
+  { value: 'GET', label: 'API Operations',   accent: 'accent-red' },
+  { value: '8+',  label: 'Routes / Views',   accent: 'accent-gold' },
+  { value: '4',   label: 'Core Endpoints',   accent: 'accent-green' },
 ];
 
 export default function Home() {
@@ -66,13 +67,23 @@ export default function Home() {
         <div className="user-stories-grid">
           <div className="us-card card">
             <div className="us-label">User Story 1</div>
-            <h3>As a coach, I want to manage my athlete roster so that I can track their progress and performance.</h3>
-            <p>Navigate to the <Link to="/athletes">Athletes</Link> section to add, edit, or remove athletes from your roster.</p>
+            <h3>As a coach, I want to review athlete profiles so that I can monitor performance and readiness.</h3>
+            <p>Open the <Link to="/athletes">Athletes</Link> route and navigate to each athlete detail page.</p>
           </div>
           <div className="us-card card">
             <div className="us-label">User Story 2</div>
-            <h3>As an athlete, I want to view my training schedule so that I can prepare for upcoming sessions.</h3>
-            <p>Navigate to the <Link to="/schedule">Schedule</Link> section to review all training sessions and competitions.</p>
+            <h3>As an athlete, I want to view trainings and recovery sessions so that I can prepare my week.</h3>
+            <p>Use the <Link to="/schedule">Schedule</Link> filters to focus by session type.</p>
+          </div>
+          <div className="us-card card">
+            <div className="us-label">User Story 3</div>
+            <h3>As a coordinator, I want to inspect coach profiles so that I can assign athletes to the right specialist.</h3>
+            <p>Use <Link to="/coaches">Coaches</Link> and open each coach detail route.</p>
+          </div>
+          <div className="us-card card">
+            <div className="us-label">User Story 4</div>
+            <h3>As a club member, I want to browse competitions so that I can follow upcoming events.</h3>
+            <p>Navigate to <Link to="/competitions">Competitions</Link> and open details for each event.</p>
           </div>
         </div>
       </section>
