@@ -10,8 +10,10 @@ export default function Athletes() {
   const [filterStatus, setFilter]     = useState('all');
   const [filterCategory, setCategory] = useState('all');
 
+  // Build category options from the source dataset to keep filter values stable.
   const categories = [...new Set(athletesData.map(a => a.category))];
 
+  // Visible list is derived state: only athletes matching both active filters.
   const displayed = athletes.filter(a => {
     const statusOk   = filterStatus === 'all'   || a.status === filterStatus;
     const categoryOk = filterCategory === 'all' || a.category === filterCategory;
@@ -23,11 +25,13 @@ export default function Athletes() {
   }
 
   function handleUpdate(updated) {
+    // Replace only the edited athlete by id and close edit mode.
     setAthletes(prev => prev.map(a => a.id === updated.id ? updated : a));
     setEditing(null);
   }
 
   function handleDelete(id) {
+    // Keep deletion explicit because this action is irreversible in local state.
     if (window.confirm('Remove this athlete from the roster?')) {
       setAthletes(prev => prev.filter(a => a.id !== id));
     }

@@ -9,6 +9,7 @@ export default function ScheduleList({ sessions }) {
     );
   }
 
+  // Copy before sorting to avoid mutating the sessions prop received from the parent.
   const sorted = [...sessions].sort((a, b) => new Date(a.date) - new Date(b.date));
 
   return (

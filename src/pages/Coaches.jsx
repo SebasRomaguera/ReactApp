@@ -5,6 +5,7 @@ import CoachList from '../components/CoachList/CoachList';
 export default function Coaches() {
   const [coaches] = useState(coachesData);
 
+  // Aggregate total athlete load across the coaching staff.
   const totalAthletes = coaches.reduce((sum, c) => sum + c.athleteCount, 0);
 
   return (

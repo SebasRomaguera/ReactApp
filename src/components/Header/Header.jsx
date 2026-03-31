@@ -13,6 +13,7 @@ export default function Header() {
           </div>
         </div>
         <nav className="header-nav">
+          {/* NavLink computes active state from current URL, so menu highlight stays in sync with routing. */}
           <NavLink to="/"         className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} end>Home</NavLink>
           <NavLink to="/athletes" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Athletes</NavLink>
           <NavLink to="/coaches"  className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Coaches</NavLink>

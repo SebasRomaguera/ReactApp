@@ -9,8 +9,10 @@ export default function Schedule() {
   const [sessions]   = useState(schedulesData);
   const [typeFilter, setType] = useState('all');
 
+  // Derived list shown in UI according to the selected session type.
   const displayed = sessions.filter(s => typeFilter === 'all' || s.type === typeFilter);
 
+  // Dashboard counters are computed from the full dataset, not the filtered subset.
   const competitions = sessions.filter(s => s.type === 'competition').length;
   const trainings    = sessions.filter(s => s.type === 'training').length;
   const recoveries   = sessions.filter(s => s.type === 'recovery').length;

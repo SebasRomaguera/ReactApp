@@ -3,6 +3,7 @@ import './ScheduleCard.css';
 const INTENSITY_COLORS = { Low: 'low', Medium: 'medium', High: 'high', Max: 'max' };
 
 export default function ScheduleCard({ session }) {
+  // Force local midnight to render consistent calendar values from YYYY-MM-DD strings.
   const dateObj = new Date(session.date + 'T00:00:00');
   const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
   const dayNum  = dateObj.getDate();

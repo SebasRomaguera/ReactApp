@@ -13,6 +13,7 @@ export default function AthleteForm({ onAddAthlete, onUpdateAthlete, editingAthl
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    // When a card enters edit mode, hydrate the form with that athlete's current values.
     if (editingAthlete) {
       setForm({
         name:         editingAthlete.name,
@@ -36,6 +37,7 @@ export default function AthleteForm({ onAddAthlete, onUpdateAthlete, editingAthl
     e.preventDefault();
     if (!form.name.trim() || !form.event.trim()) return;
 
+    // Normalize derived fields once, then branch between update and create flows.
     const initials = form.name.trim().split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
     const athleteData = { ...form, age: Number(form.age), avatarInitials: initials };
 
@@ -50,6 +52,7 @@ export default function AthleteForm({ onAddAthlete, onUpdateAthlete, editingAthl
   }
 
   function handleCancel() {
+    // Reset local form state and notify parent to exit external edit mode.
     setForm(EMPTY_FORM);
     setVisible(false);
     if (onCancelEdit) onCancelEdit();

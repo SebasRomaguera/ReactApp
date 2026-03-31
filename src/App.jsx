@@ -10,6 +10,7 @@ import './App.css';
 
 export default function App() {
   return (
+    // Router at the top level so navigation and route rendering share one history context.
     <BrowserRouter>
       <div className="app-shell">
         <Header />
