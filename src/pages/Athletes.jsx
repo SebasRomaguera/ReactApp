@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { getList } from '../api/client';
+import { getList, createResource } from '../api/client';
 import { normalizeAthlete } from '../api/normalizers';
 import AthleteList from '../components/AthleteList/AthleteList';
+import AthleteForm from '../components/AthleteForm/AthleteForm';
 import LoadingState from '../components/common/LoadingState/LoadingState';
 import ErrorState from '../components/common/ErrorState/ErrorState';
+import Toast from '../components/common/Toast/Toast';
 import './Athletes.css';
 
 export default function Athletes() {
@@ -12,6 +14,9 @@ export default function Athletes() {
   const [filterCategory, setCategory] = useState('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showForm, setShowForm] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [toast, setToast] = useState({ message: '', type: '' });
 
   useEffect(() => {
     let isMounted = true;
@@ -39,6 +44,21 @@ export default function Athletes() {
     };
   }, []);
 
+  async function handleCreateAthlete(formData) {
+    setSubmitting(true);
+    try {
+      const newAthlete = await createResource('/people/athletes', formData);
+      const normalized = normalizeAthlete(newAthlete);
+      setAthletes(prev => [normalized, ...prev]);
+      setToast({ message: `✓ Athlete "${normalized.name}" created successfully!`, type: 'success' });
+      setShowForm(false);
+    } catch (err) {
+      setToast({ message: `✕ Failed to create athlete: ${err.message}`, type: 'error' });
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   const categories = useMemo(() => {
     return [...new Set(athletes.map(a => a.category).filter(Boolean))];
   }, [athletes]);
@@ -60,7 +80,19 @@ export default function Athletes() {
           <h1>🏃 Athlete Roster</h1>
           <p>Manage all registered athletes in the club.</p>
         </div>
+        <button className="btn btn-gold" onClick={() => setShowForm(!showForm)}>
+          {showForm ? '✕ Close Form' : '➕ Add Athlete'}
+        </button>
       </div>
+
+      {/* Form */}
+      {showForm && (
+        <AthleteForm
+          onSubmit={handleCreateAthlete}
+          onCancel={() => setShowForm(false)}
+          isLoading={submitting}
+        />
+      )}
 
       {/* Stats */}
       <div className="stats-strip">
@@ -105,6 +137,12 @@ export default function Athletes() {
       {loading ? <LoadingState label="Loading athletes from API..." /> : null}
       {!loading && error ? <ErrorState message={error} /> : null}
       {!loading && !error ? <AthleteList athletes={displayed} /> : null}
+
+      <Toast
+        type={toast.type}
+        message={toast.message}
+        onClose={() => setToast({ message: '', type: '' })}
+      />
     </div>
   );
 }

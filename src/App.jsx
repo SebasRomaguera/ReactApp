@@ -10,6 +10,8 @@ import CoachDetail from './pages/CoachDetail';
 import Schedule from './pages/Schedule';
 import Competitions from './pages/Competitions';
 import CompetitionDetail from './pages/CompetitionDetail';
+import Venues from './pages/Venues';
+import VenueDetail from './pages/VenueDetail';
 import './App.css';
 
 export default function App() {
@@ -28,6 +30,8 @@ export default function App() {
             <Route path="/schedule" element={<Schedule />} />
             <Route path="/competitions" element={<Competitions />} />
             <Route path="/competitions/:publicId" element={<CompetitionDetail />} />
+            <Route path="/venues" element={<Venues />} />
+            <Route path="/venues/:publicId" element={<VenueDetail />} />
           </Routes>
         </MainLayout>
         <Footer />

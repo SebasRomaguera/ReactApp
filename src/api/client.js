@@ -52,4 +52,43 @@ export async function getById(resourcePath, publicId) {
   return toObject(payload);
 }
 
+export async function createResource(resourcePath, data) {
+  const response = await fetch(buildUrl(resourcePath), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    throw new Error(errorMessage(response));
+  }
+
+  const payload = await response.json();
+  return toObject(payload);
+}
+
+export async function updateResource(resourcePath, publicId, data) {
+  const response = await fetch(buildUrl(`${resourcePath}/${publicId}`), {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    throw new Error(errorMessage(response));
+  }
+
+  const payload = await response.json();
+  return toObject(payload);
+}
+
+export async function deleteResource(resourcePath, publicId) {
+  const response = await fetch(buildUrl(`${resourcePath}/${publicId}`), {
+    method: 'DELETE',
+  });
+  if (!response.ok) {
+    throw new Error(errorMessage(response));
+  }
+
+  return true;
+}
+
 export { API_BASE_URL };

@@ -1,0 +1,49 @@
+.venue-list {
+  margin-bottom: 2rem;
+}
+
+.venue-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.venue-card {
+  padding: 1rem;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.venue-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.1);
+}
+
+.venue-header {
+  margin-bottom: 0.75rem;
+}
+
+.venue-name {
+  font-size: 1.15rem;
+  margin: 0;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.venue-info {
+  flex: 1;
+  margin-bottom: 1rem;
+}
+
+.venue-info p {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.venue-card .btn {
+  align-self: flex-start;
+}

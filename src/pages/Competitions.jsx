@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { getList } from '../api/client';
+import { getList, createResource } from '../api/client';
 import { normalizeCompetition } from '../api/normalizers';
 import CompetitionList from '../components/CompetitionList/CompetitionList';
+import CompetitionForm from '../components/CompetitionForm/CompetitionForm';
 import LoadingState from '../components/common/LoadingState/LoadingState';
 import ErrorState from '../components/common/ErrorState/ErrorState';
+import Toast from '../components/common/Toast/Toast';
 import './Competitions.css';
 
 const COMPETITION_FILTERS = ['all', 'scheduled', 'finished', 'cancelled'];
@@ -13,6 +15,9 @@ export default function Competitions() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showForm, setShowForm] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [toast, setToast] = useState({ message: '', type: '' });
 
   useEffect(() => {
     let isMounted = true;
@@ -40,6 +45,21 @@ export default function Competitions() {
     };
   }, []);
 
+  async function handleCreateCompetition(formData) {
+    setSubmitting(true);
+    try {
+      const newCompetition = await createResource('/scheduling/competitions', formData);
+      const normalized = normalizeCompetition(newCompetition);
+      setCompetitions(prev => [normalized, ...prev]);
+      setToast({ message: `✓ Competition "${normalized.name}" created successfully!`, type: 'success' });
+      setShowForm(false);
+    } catch (err) {
+      setToast({ message: `✕ Failed to create competition: ${err.message}`, type: 'error' });
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   const displayed = useMemo(() => {
     return competitions.filter(item => statusFilter === 'all' || item.status === statusFilter);
   }, [competitions, statusFilter]);
@@ -51,7 +71,19 @@ export default function Competitions() {
           <h1>🏟 Competitions</h1>
           <p>Read upcoming and historical competitions from the REST API.</p>
         </div>
+        <button className="btn btn-gold" onClick={() => setShowForm(!showForm)}>
+          {showForm ? '✕ Close Form' : '➕ Create Competition'}
+        </button>
       </div>
+
+      {/* Form */}
+      {showForm && (
+        <CompetitionForm
+          onSubmit={handleCreateCompetition}
+          onCancel={() => setShowForm(false)}
+          isLoading={submitting}
+        />
+      )}
 
       <div className="stats-strip">
         <div className="stat-card">
@@ -88,6 +120,12 @@ export default function Competitions() {
       {loading ? <LoadingState label="Loading competitions from API..." /> : null}
       {!loading && error ? <ErrorState message={error} /> : null}
       {!loading && !error ? <CompetitionList competitions={displayed} /> : null}
+
+      <Toast
+        type={toast.type}
+        message={toast.message}
+        onClose={() => setToast({ message: '', type: '' })}
+      />
     </div>
   );
 }

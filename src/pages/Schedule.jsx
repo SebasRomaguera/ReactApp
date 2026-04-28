@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { getList } from '../api/client';
+import { getList, createResource } from '../api/client';
 import { normalizeTraining } from '../api/normalizers';
 import ScheduleList from '../components/ScheduleList/ScheduleList';
+import TrainingForm from '../components/TrainingForm/TrainingForm';
 import LoadingState from '../components/common/LoadingState/LoadingState';
 import ErrorState from '../components/common/ErrorState/ErrorState';
+import Toast from '../components/common/Toast/Toast';
 import './Schedule.css';
 
 const SESSION_TYPES = ['all', 'training', 'competition', 'recovery'];
@@ -13,6 +15,9 @@ export default function Schedule() {
   const [typeFilter, setType] = useState('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showForm, setShowForm] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [toast, setToast] = useState({ message: '', type: '' });
 
   useEffect(() => {
     let isMounted = true;
@@ -40,6 +45,21 @@ export default function Schedule() {
     };
   }, []);
 
+  async function handleCreateTraining(formData) {
+    setSubmitting(true);
+    try {
+      const newTraining = await createResource('/scheduling/trainings', formData);
+      const normalized = normalizeTraining(newTraining);
+      setSessions(prev => [normalized, ...prev]);
+      setToast({ message: `✓ Session "${normalized.title}" created successfully!`, type: 'success' });
+      setShowForm(false);
+    } catch (err) {
+      setToast({ message: `✕ Failed to create session: ${err.message}`, type: 'error' });
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   // Derived list shown in UI according to the selected session type.
   const displayed = useMemo(() => {
     return sessions.filter(s => typeFilter === 'all' || s.type === typeFilter);
@@ -57,7 +77,19 @@ export default function Schedule() {
           <h1>📅 Training Schedule</h1>
           <p>Upcoming sessions, competitions, and recovery days.</p>
         </div>
+        <button className="btn btn-gold" onClick={() => setShowForm(!showForm)}>
+          {showForm ? '✕ Close Form' : '➕ Create Session'}
+        </button>
       </div>
+
+      {/* Form */}
+      {showForm && (
+        <TrainingForm
+          onSubmit={handleCreateTraining}
+          onCancel={() => setShowForm(false)}
+          isLoading={submitting}
+        />
+      )}
 
       <div className="stats-strip">
         <div className="stat-card">
@@ -94,6 +126,12 @@ export default function Schedule() {
       {loading ? <LoadingState label="Loading training schedule from API..." /> : null}
       {!loading && error ? <ErrorState message={error} /> : null}
       {!loading && !error ? <ScheduleList sessions={displayed} /> : null}
+
+      <Toast
+        type={toast.type}
+        message={toast.message}
+        onClose={() => setToast({ message: '', type: '' })}
+      />
     </div>
   );
 }

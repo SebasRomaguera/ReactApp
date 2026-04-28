@@ -1,4 +1,4 @@
-.athlete-form {
+.venue-form {
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
@@ -79,4 +79,3 @@
   flex: 1;
   min-width: 120px;
 }
-
