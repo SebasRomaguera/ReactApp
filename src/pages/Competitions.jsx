@@ -12,6 +12,7 @@ const COMPETITION_FILTERS = ['all', 'scheduled', 'finished', 'cancelled'];
 
 export default function Competitions() {
   const [competitions, setCompetitions] = useState([]);
+  const [seasons, setSeasons] = useState([]);
   const [statusFilter, setStatusFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -27,9 +28,16 @@ export default function Competitions() {
       setError('');
 
       try {
-        const records = await getList('/scheduling/competitions');
+        const [competitionRecords, seasonRecords] = await Promise.all([
+          getList('/scheduling/competitions'),
+          getList('/scheduling/seasons'),
+        ]);
         if (!isMounted) return;
-        setCompetitions(records.map(normalizeCompetition));
+        setCompetitions(competitionRecords.map(normalizeCompetition));
+        setSeasons(seasonRecords.map(season => ({
+          publicId: season.public_id,
+          name: season.name,
+        })));
       } catch (requestError) {
         if (!isMounted) return;
         setError(requestError.message);
@@ -79,6 +87,7 @@ export default function Competitions() {
       {/* Form */}
       {showForm && (
         <CompetitionForm
+          seasons={seasons}
           onSubmit={handleCreateCompetition}
           onCancel={() => setShowForm(false)}
           isLoading={submitting}

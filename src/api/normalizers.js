@@ -92,14 +92,21 @@ export function normalizeTraining(record) {
 }
 
 export function normalizeCompetition(record) {
+  const season = record.season || {};
+  const venue = record.venue || {};
+
   return {
     id: record.public_id || record.id || record.uuid || safeText(record.name || record.title),
     publicId: record.public_id || record.id || record.uuid,
     name: safeText(record.name || record.title),
     date: safeText(record.date || record.start_date),
     status: safeText(record.status || 'scheduled').toLowerCase(),
-    venue: safeText(record.venue?.name || record.venue_name || record.location),
-    season: safeText(record.season?.name || record.season || 'General'),
+    venue: safeText(venue.name || record.venue_name || record.location),
+    venuePublicId: safeText(venue.public_id || record.venue_public_id || record.venuePublicId, ''),
+    season: safeText(season.name || record.season || 'General'),
+    seasonPublicId: safeText(season.public_id || record.season_public_id || record.seasonPublicId, ''),
+    coachPublicIds: Array.isArray(record.coaches) ? record.coaches.map(item => item.public_id).filter(Boolean) : [],
+    athletePublicIds: Array.isArray(record.athletes) ? record.athletes.map(item => item.public_id).filter(Boolean) : [],
     category: safeText(record.category?.name || record.category),
     description: safeText(record.description || record.notes || 'No extra details available.'),
   };

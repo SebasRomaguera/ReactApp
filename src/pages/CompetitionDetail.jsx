@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { getById, getList, updateResource, deleteResource, createResource } from '../api/client';
+import { getById, getList, updateResource, deleteResource } from '../api/client';
 import { normalizeCompetition, normalizeAthlete } from '../api/normalizers';
 import CompetitionForm from '../components/CompetitionForm/CompetitionForm';
 import EnrollmentForm from '../components/EnrollmentForm/EnrollmentForm';
@@ -15,6 +15,7 @@ export default function CompetitionDetail() {
   const navigate = useNavigate();
   const [competition, setCompetition] = useState(null);
   const [athletes, setAthletes] = useState([]);
+  const [seasons, setSeasons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isEditing, setIsEditing] = useState(false);
@@ -32,14 +33,19 @@ export default function CompetitionDetail() {
       setError('');
 
       try {
-        const [compRecord, athletesRecords] = await Promise.all([
+        const [compRecord, athletesRecords, seasonRecords] = await Promise.all([
           getById('/scheduling/competitions', publicId),
-          getList('/people/athletes')
+          getList('/people/athletes'),
+          getList('/scheduling/seasons'),
         ]);
         
         if (!isMounted) return;
         setCompetition(normalizeCompetition(compRecord));
         setAthletes(athletesRecords.map(normalizeAthlete));
+        setSeasons(seasonRecords.map(season => ({
+          publicId: season.public_id,
+          name: season.name,
+        })));
       } catch (requestError) {
         if (!isMounted) return;
         setError(requestError.message);
@@ -73,7 +79,21 @@ export default function CompetitionDetail() {
   async function handleEnroll(formData) {
     setIsSubmitting(true);
     try {
-      await createResource(`/scheduling/competitions/${publicId}/enrollments`, formData);
+      const athletePublicIds = Array.from(new Set([
+        ...(competition.athletePublicIds || []),
+        formData.athlete_id,
+      ]));
+
+      const updated = await updateResource('/scheduling/competitions', publicId, {
+        name: competition.name,
+        date: competition.date,
+        season_public_id: competition.seasonPublicId,
+        venue_public_id: competition.venuePublicId || null,
+        coach_public_ids: competition.coachPublicIds || [],
+        athlete_public_ids: athletePublicIds,
+      });
+
+      setCompetition(normalizeCompetition(updated));
       setToast({ message: `✓ Athlete enrolled successfully!`, type: 'success' });
       setIsEnrolling(false);
     } catch (err) {
@@ -106,6 +126,7 @@ export default function CompetitionDetail() {
       <>
         <CompetitionForm
           competition={competition}
+          seasons={seasons}
           onSubmit={handleUpdate}
           onCancel={() => setIsEditing(false)}
           isLoading={isSubmitting}

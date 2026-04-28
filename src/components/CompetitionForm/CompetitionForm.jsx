@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './CompetitionForm.css';
 
 const EMPTY_FORM = {
@@ -6,30 +6,44 @@ const EMPTY_FORM = {
   date: '',
   status: 'scheduled',
   venue: '',
-  season: '',
+  season_public_id: '',
   category: '',
   description: '',
 };
 
 const STATUSES = ['scheduled', 'finished', 'cancelled'];
 
-export default function CompetitionForm({ competition = null, onSubmit, onCancel, isLoading = false }) {
+function toDateInputValue(value) {
+  if (!value) return '';
+  return String(value).slice(0, 10);
+}
+
+export default function CompetitionForm({ competition = null, seasons = [], onSubmit, onCancel, isLoading = false }) {
   const [form, setForm] = useState(competition ? {
     name: competition.name || '',
-    date: competition.date || '',
+    date: toDateInputValue(competition.date),
     status: competition.status || 'scheduled',
     venue: competition.venue || '',
-    season: competition.season || '',
+    season_public_id: competition.seasonPublicId || '',
     category: competition.category || '',
     description: competition.description || '',
   } : EMPTY_FORM);
 
   const [errors, setErrors] = useState({});
 
+  useEffect(() => {
+    if (form.season_public_id || !seasons.length) return;
+    setForm(prev => ({
+      ...prev,
+      season_public_id: seasons[0].publicId || seasons[0].id || '',
+    }));
+  }, [form.season_public_id, seasons]);
+
   function validateForm() {
     const newErrors = {};
     if (!form.name.trim()) newErrors.name = 'Event name is required';
     if (!form.date) newErrors.date = 'Date is required';
+    if (!form.season_public_id) newErrors.season_public_id = 'Season is required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }
@@ -112,15 +126,23 @@ export default function CompetitionForm({ competition = null, onSubmit, onCancel
         </div>
 
         <div className="form-group">
-          <label htmlFor="season">Season</label>
-          <input
-            id="season"
-            name="season"
-            value={form.season}
+          <label htmlFor="season_public_id">Season *</label>
+          <select
+            id="season_public_id"
+            name="season_public_id"
+            value={form.season_public_id}
             onChange={handleChange}
-            placeholder="e.g. Spring 2024"
-            disabled={isLoading}
-          />
+            disabled={isLoading || seasons.length === 0}
+            className={errors.season_public_id ? 'error' : ''}
+          >
+            <option value="">Select a season</option>
+            {seasons.map(season => (
+              <option key={season.publicId || season.id} value={season.publicId || season.id}>
+                {season.name}
+              </option>
+            ))}
+          </select>
+          {errors.season_public_id && <span className="error-text">{errors.season_public_id}</span>}
         </div>
 
         <div className="form-group">
