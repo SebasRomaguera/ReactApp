@@ -138,21 +138,3 @@ export default function CoachDetail() {
     </>
   );
 }
-      </div>
-
-      <div className="detail-grid">
-        <div><strong>Specialty:</strong> {coach.specialty}</div>
-        <div><strong>Status:</strong> {coach.status}</div>
-        <div><strong>Experience:</strong> {coach.experience}</div>
-        <div><strong>Certification:</strong> {coach.certificationLevel}</div>
-        <div><strong>Athletes:</strong> {coach.athleteCount}</div>
-        <div><strong>Email:</strong> {coach.email}</div>
-        <div><strong>Phone:</strong> {coach.phone}</div>
-      </div>
-
-      <div className="detail-back">
-        <Link className="btn btn-outline" to="/coaches">← Back to Coaches</Link>
-      </div>
-    </article>
-  );
-}

@@ -49,60 +49,6 @@ export default function AthleteForm({ athlete = null, onSubmit, onCancel, isLoad
     e.preventDefault();
     if (!validateForm()) return;
     onSubmit(form);
-    setVisible(false);
-  }
-
-import { useState } from 'react';
-import './AthleteForm.css';
-
-const EMPTY_FORM = {
-  first_name: '',
-  last_name: '',
-  age: '',
-  category: 'Sprint',
-  event: '',
-  personal_best: '',
-  nationality: '',
-  status: 'active',
-};
-
-const CATEGORIES = ['Sprint', 'Long Distance', 'Jump', 'Throw', 'Multi-event'];
-
-export default function AthleteForm({ athlete = null, onSubmit, onCancel, isLoading = false }) {
-  const [form, setForm] = useState(athlete ? {
-    first_name: athlete.first_name || athlete.name?.split(' ')[0] || '',
-    last_name: athlete.last_name || athlete.name?.split(' ').slice(1).join(' ') || '',
-    age: athlete.age || '',
-    category: athlete.category || 'Sprint',
-    event: athlete.event || '',
-    personal_best: athlete.personalBest || '',
-    nationality: athlete.nationality || '',
-    status: athlete.status || 'active',
-  } : EMPTY_FORM);
-
-  const [errors, setErrors] = useState({});
-
-  function validateForm() {
-    const newErrors = {};
-    if (!form.first_name.trim()) newErrors.first_name = 'First name is required';
-    if (!form.event.trim()) newErrors.event = 'Event is required';
-    if (form.age && (isNaN(form.age) || form.age < 0)) newErrors.age = 'Age must be a valid number';
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  }
-
-  function handleChange(e) {
-    const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
-    }
-  }
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    if (!validateForm()) return;
-    onSubmit(form);
   }
 
   const title = athlete ? '✏️ Edit Athlete' : '➕ Add New Athlete';
