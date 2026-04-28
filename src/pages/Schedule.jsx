@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getList, createResource } from '../api/client';
-import { normalizeTraining } from '../api/normalizers';
+import { normalizeTraining, normalizeVenue } from '../api/normalizers';
 import ScheduleList from '../components/ScheduleList/ScheduleList';
 import TrainingForm from '../components/TrainingForm/TrainingForm';
 import LoadingState from '../components/common/LoadingState/LoadingState';
@@ -8,11 +8,10 @@ import ErrorState from '../components/common/ErrorState/ErrorState';
 import Toast from '../components/common/Toast/Toast';
 import './Schedule.css';
 
-const SESSION_TYPES = ['all', 'training', 'competition', 'recovery'];
-
 export default function Schedule() {
   const [sessions, setSessions] = useState([]);
-  const [typeFilter, setType] = useState('all');
+  const [seasons, setSeasons] = useState([]);
+  const [venues, setVenues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
@@ -27,9 +26,15 @@ export default function Schedule() {
       setError('');
 
       try {
-        const records = await getList('/scheduling/trainings');
+        const [records, seasonRecords, venueRecords] = await Promise.all([
+          getList('/scheduling/trainings'),
+          getList('/scheduling/seasons'),
+          getList('/inventory/venues'),
+        ]);
         if (!isMounted) return;
         setSessions(records.map(normalizeTraining));
+        setSeasons(seasonRecords.map(season => ({ publicId: season.public_id, name: season.name })));
+        setVenues(venueRecords.map(normalizeVenue));
       } catch (requestError) {
         if (!isMounted) return;
         setError(requestError.message);
@@ -51,7 +56,7 @@ export default function Schedule() {
       const newTraining = await createResource('/scheduling/trainings', formData);
       const normalized = normalizeTraining(newTraining);
       setSessions(prev => [normalized, ...prev]);
-      setToast({ message: `✓ Session "${normalized.title}" created successfully!`, type: 'success' });
+      setToast({ message: `✓ Session "${normalized.name}" created successfully!`, type: 'success' });
       setShowForm(false);
     } catch (err) {
       setToast({ message: `✕ Failed to create session: ${err.message}`, type: 'error' });
@@ -60,15 +65,10 @@ export default function Schedule() {
     }
   }
 
-  // Derived list shown in UI according to the selected session type.
-  const displayed = useMemo(() => {
-    return sessions.filter(s => typeFilter === 'all' || s.type === typeFilter);
-  }, [sessions, typeFilter]);
-
-  // Dashboard counters are computed from the full dataset, not the filtered subset.
-  const competitions = sessions.filter(s => s.type === 'competition').length;
-  const trainings    = sessions.filter(s => s.type === 'training').length;
-  const recoveries   = sessions.filter(s => s.type === 'recovery').length;
+  const displayed = useMemo(() => sessions, [sessions]);
+  const withVenue = sessions.filter(s => s.venuePublicId).length;
+  const withAthletes = sessions.filter(s => s.athletePublicIds.length > 0).length;
+  const withCoaches = sessions.filter(s => s.coachPublicIds.length > 0).length;
 
   return (
     <div>
@@ -85,6 +85,8 @@ export default function Schedule() {
       {/* Form */}
       {showForm && (
         <TrainingForm
+          seasons={seasons}
+          venues={venues}
           onSubmit={handleCreateTraining}
           onCancel={() => setShowForm(false)}
           isLoading={submitting}
@@ -97,29 +99,20 @@ export default function Schedule() {
           <div className="stat-label">Total Sessions</div>
         </div>
         <div className="stat-card accent-gold">
-          <div className="stat-value">{trainings}</div>
-          <div className="stat-label">Training</div>
+          <div className="stat-value">{withVenue}</div>
+          <div className="stat-label">With Venue</div>
         </div>
         <div className="stat-card accent-red">
-          <div className="stat-value">{competitions}</div>
-          <div className="stat-label">Competitions</div>
+          <div className="stat-value">{withAthletes}</div>
+          <div className="stat-label">With Athletes</div>
         </div>
         <div className="stat-card accent-green">
-          <div className="stat-value">{recoveries}</div>
-          <div className="stat-label">Recovery</div>
+          <div className="stat-value">{withCoaches}</div>
+          <div className="stat-label">With Coaches</div>
         </div>
       </div>
 
       <div className="schedule-filters">
-        {SESSION_TYPES.map(t => (
-          <button
-            key={t}
-            className={`filter-pill ${typeFilter === t ? 'active' : ''}`}
-            onClick={() => setType(t)}
-          >
-            {t.charAt(0).toUpperCase() + t.slice(1)}
-          </button>
-        ))}
         <span className="filter-count">{displayed.length} session{displayed.length !== 1 ? 's' : ''}</span>
       </div>
 

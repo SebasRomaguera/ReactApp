@@ -18,7 +18,6 @@ export default function AthleteDetail() {
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [toast, setToast] = useState({ message: '', type: '' });
 
   useEffect(() => {
@@ -63,7 +62,6 @@ export default function AthleteDetail() {
   }
 
   async function handleDelete() {
-    setIsDeleting(true);
     try {
       await deleteResource('/people/athletes', publicId);
       setToast({ message: `✓ Athlete deleted successfully!`, type: 'success' });
@@ -71,7 +69,6 @@ export default function AthleteDetail() {
     } catch (err) {
       setToast({ message: `✕ Failed to delete: ${err.message}`, type: 'error' });
     } finally {
-      setIsDeleting(false);
       setShowDeleteModal(false);
     }
   }
@@ -109,13 +106,13 @@ export default function AthleteDetail() {
         </div>
 
         <div className="detail-grid">
-          <div><strong>Event:</strong> {athlete.event}</div>
-          <div><strong>Category:</strong> {athlete.category}</div>
-          <div><strong>Status:</strong> {athlete.status}</div>
-          <div><strong>Personal Best:</strong> {athlete.personalBest}</div>
-          <div><strong>Age:</strong> {athlete.age}</div>
-          <div><strong>Nationality:</strong> {athlete.nationality}</div>
-          <div><strong>Joined:</strong> {athlete.joinedDate}</div>
+          <div><strong>Email:</strong> {athlete.email}</div>
+          <div><strong>Phone:</strong> {athlete.phone}</div>
+          <div><strong>Date of Birth:</strong> {athlete.joinedDate}</div>
+          <div><strong>Jersey Number:</strong> {athlete.jerseyNumber ?? 'N/A'}</div>
+          <div><strong>Height:</strong> {athlete.height ?? 'N/A'} cm</div>
+          <div><strong>Weight:</strong> {athlete.weight ?? 'N/A'} kg</div>
+          <div><strong>Address:</strong> {athlete.addressLabel}</div>
         </div>
 
         <div className="detail-back">

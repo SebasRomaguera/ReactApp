@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getList, createResource } from '../api/client';
-import { normalizeCompetition } from '../api/normalizers';
+import { normalizeCompetition, normalizeVenue } from '../api/normalizers';
 import CompetitionList from '../components/CompetitionList/CompetitionList';
 import CompetitionForm from '../components/CompetitionForm/CompetitionForm';
 import LoadingState from '../components/common/LoadingState/LoadingState';
@@ -8,12 +8,10 @@ import ErrorState from '../components/common/ErrorState/ErrorState';
 import Toast from '../components/common/Toast/Toast';
 import './Competitions.css';
 
-const COMPETITION_FILTERS = ['all', 'scheduled', 'finished', 'cancelled'];
-
 export default function Competitions() {
   const [competitions, setCompetitions] = useState([]);
   const [seasons, setSeasons] = useState([]);
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [venues, setVenues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
@@ -28,9 +26,10 @@ export default function Competitions() {
       setError('');
 
       try {
-        const [competitionRecords, seasonRecords] = await Promise.all([
+        const [competitionRecords, seasonRecords, venueRecords] = await Promise.all([
           getList('/scheduling/competitions'),
           getList('/scheduling/seasons'),
+          getList('/inventory/venues'),
         ]);
         if (!isMounted) return;
         setCompetitions(competitionRecords.map(normalizeCompetition));
@@ -38,6 +37,7 @@ export default function Competitions() {
           publicId: season.public_id,
           name: season.name,
         })));
+        setVenues(venueRecords.map(normalizeVenue));
       } catch (requestError) {
         if (!isMounted) return;
         setError(requestError.message);
@@ -68,9 +68,7 @@ export default function Competitions() {
     }
   }
 
-  const displayed = useMemo(() => {
-    return competitions.filter(item => statusFilter === 'all' || item.status === statusFilter);
-  }, [competitions, statusFilter]);
+  const displayed = useMemo(() => competitions, [competitions]);
 
   return (
     <div>
@@ -88,6 +86,7 @@ export default function Competitions() {
       {showForm && (
         <CompetitionForm
           seasons={seasons}
+          venues={venues}
           onSubmit={handleCreateCompetition}
           onCancel={() => setShowForm(false)}
           isLoading={submitting}
@@ -100,29 +99,20 @@ export default function Competitions() {
           <div className="stat-label">Total Competitions</div>
         </div>
         <div className="stat-card accent-gold">
-          <div className="stat-value">{competitions.filter(c => c.status === 'scheduled').length}</div>
-          <div className="stat-label">Scheduled</div>
+          <div className="stat-value">{competitions.filter(c => c.venuePublicId).length}</div>
+          <div className="stat-label">With Venue</div>
         </div>
         <div className="stat-card accent-green">
-          <div className="stat-value">{competitions.filter(c => c.status === 'finished').length}</div>
-          <div className="stat-label">Finished</div>
+          <div className="stat-value">{competitions.filter(c => c.coachPublicIds.length > 0).length}</div>
+          <div className="stat-label">With Coaches</div>
         </div>
         <div className="stat-card accent-red">
-          <div className="stat-value">{competitions.filter(c => c.status === 'cancelled').length}</div>
-          <div className="stat-label">Cancelled</div>
+          <div className="stat-value">{competitions.reduce((sum, c) => sum + c.athleteCount, 0)}</div>
+          <div className="stat-label">Athlete Slots</div>
         </div>
       </div>
 
       <div className="competitions-filters">
-        {COMPETITION_FILTERS.map(filter => (
-          <button
-            key={filter}
-            className={`filter-pill ${statusFilter === filter ? 'active' : ''}`}
-            onClick={() => setStatusFilter(filter)}
-          >
-            {filter.charAt(0).toUpperCase() + filter.slice(1)}
-          </button>
-        ))}
         <span className="filter-count">{displayed.length} result{displayed.length !== 1 ? 's' : ''}</span>
       </div>
 

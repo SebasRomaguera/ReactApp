@@ -13,14 +13,6 @@ function safeText(value, fallback = 'N/A') {
   return text.length ? text : fallback;
 }
 
-function normalizeStatus(value) {
-  if (typeof value === 'boolean') return value ? 'active' : 'inactive';
-  if (typeof value !== 'string') return 'active';
-  const lowered = value.toLowerCase();
-  if (lowered.includes('inactive')) return 'inactive';
-  return 'active';
-}
-
 function resolveName(record) {
   if (record.name) return safeText(record.name, 'Unknown');
   const composed = [record.first_name, record.last_name].filter(Boolean).join(' ').trim();
@@ -34,6 +26,20 @@ function resolveDate(value) {
   return date.toLocaleDateString('en-GB');
 }
 
+function resolveAddress(record) {
+  const address = record.address || null;
+  if (!address) return 'N/A';
+  return safeText(address.formatted_address || [address.line1, address.city, address.country].filter(Boolean).join(', '));
+}
+
+function resolveVenueName(record) {
+  return safeText(record.venue?.name || record.venue_name || record.location || record.name);
+}
+
+function resolveSeasonName(record) {
+  return safeText(record.season?.name || record.season || 'General');
+}
+
 export function normalizeAthlete(record) {
   const name = resolveName(record);
 
@@ -42,72 +48,93 @@ export function normalizeAthlete(record) {
     publicId: record.public_id || record.id || record.uuid || name,
     name,
     avatarInitials: initialsFromName(name),
-    event: safeText(record.event?.name || record.event || record.discipline),
-    category: safeText(record.category?.name || record.category || record.level),
-    status: normalizeStatus(record.status ?? record.is_active),
-    personalBest: safeText(record.personal_best || record.pb || record.best_mark),
-    age: record.age || 'N/A',
-    nationality: safeText(record.nationality || record.country),
-    joinedDate: resolveDate(record.joined_at || record.created_at || record.membership_start),
+    first_name: safeText(record.first_name, ''),
+    last_name: safeText(record.last_name, ''),
+    email: safeText(record.email, '-'),
+    phone: safeText(record.phone, '-'),
+    date_of_birth: safeText(record.date_of_birth, ''),
+    joinedDate: resolveDate(record.date_of_birth),
+    address: record.address || null,
+    addressLabel: resolveAddress(record),
+    height: record.height ?? null,
+    weight: record.weight ?? null,
+    jersey_number: record.jersey_number ?? null,
+    jerseyNumber: record.jersey_number ?? null,
   };
 }
 
 export function normalizeCoach(record) {
   const name = resolveName(record);
-  const experienceValue = record.experience || (record.years_experience ? `${record.years_experience} years` : null);
 
   return {
     id: record.public_id || record.id || record.uuid || name,
     publicId: record.public_id || record.id || record.uuid || name,
     name,
     avatarInitials: initialsFromName(name),
-    specialty: safeText(record.specialty || record.discipline || record.focus_area),
-    status: normalizeStatus(record.status ?? record.is_active),
-    experience: safeText(experienceValue),
-    certificationLevel: safeText(record.certification_level || record.certification),
-    athleteCount: Number(record.athlete_count ?? record.athleteCount ?? 0),
-    age: record.age || 'N/A',
+    first_name: safeText(record.first_name, ''),
+    last_name: safeText(record.last_name, ''),
     email: safeText(record.email, '-'),
     phone: safeText(record.phone, '-'),
+    date_of_birth: safeText(record.date_of_birth, ''),
+    address: record.address || null,
+    addressLabel: resolveAddress(record),
+    certification: safeText(record.certification, ''),
+    certificationLevel: safeText(record.certification, '-'),
+  };
+}
+
+export function normalizeVenue(record) {
+  return {
+    id: record.public_id || record.id || record.uuid || safeText(record.name),
+    publicId: record.public_id || record.id || record.uuid,
+    name: safeText(record.name),
+    venue_type: safeText(record.venue_type || record.venueType || 'FIELD'),
+    indoor: Boolean(record.indoor),
+    capacity: record.capacity ?? null,
+    address: record.address || null,
+    addressLabel: resolveAddress(record),
   };
 }
 
 export function normalizeTraining(record) {
-  const type = safeText(record.type || 'training').toLowerCase();
   const athletes = Array.isArray(record.athletes) ? record.athletes : [];
+  const coaches = Array.isArray(record.coaches) ? record.coaches : [];
 
   return {
-    id: record.public_id || record.id || record.uuid || safeText(record.title || record.name),
+    id: record.public_id || record.id || record.uuid || safeText(record.name),
     publicId: record.public_id || record.id || record.uuid,
-    title: safeText(record.title || record.name),
-    type,
-    date: safeText(record.date || record.training_date || record.start_date),
-    time: safeText(record.time || record.start_time),
-    duration: safeText(record.duration || (record.duration_minutes ? `${record.duration_minutes} min` : null)),
-    intensity: safeText(record.intensity || 'Medium'),
-    description: safeText(record.description || record.notes || 'No description provided.'),
-    location: safeText(record.location?.name || record.venue?.name || record.location),
-    athleteIds: athletes.map(item => item.public_id || item.id).filter(Boolean),
+    name: safeText(record.name),
+    date: safeText(record.date),
+    season: resolveSeasonName(record),
+    seasonPublicId: safeText(record.season?.public_id || record.season_public_id || record.seasonPublicId, ''),
+    venue: resolveVenueName(record),
+    venuePublicId: safeText(record.venue?.public_id || record.venue_public_id || record.venuePublicId, ''),
+    focus: safeText(record.focus, ''),
+    coachPublicIds: coaches.map(item => item.public_id).filter(Boolean),
+    athletePublicIds: athletes.map(item => item.public_id).filter(Boolean),
+    coachNames: coaches.map(item => item.display_name).filter(Boolean),
+    athleteNames: athletes.map(item => item.display_name).filter(Boolean),
   };
 }
 
 export function normalizeCompetition(record) {
-  const season = record.season || {};
-  const venue = record.venue || {};
+  const athletes = Array.isArray(record.athletes) ? record.athletes : [];
+  const coaches = Array.isArray(record.coaches) ? record.coaches : [];
 
   return {
-    id: record.public_id || record.id || record.uuid || safeText(record.name || record.title),
+    id: record.public_id || record.id || record.uuid || safeText(record.name),
     publicId: record.public_id || record.id || record.uuid,
-    name: safeText(record.name || record.title),
-    date: safeText(record.date || record.start_date),
-    status: safeText(record.status || 'scheduled').toLowerCase(),
-    venue: safeText(venue.name || record.venue_name || record.location),
-    venuePublicId: safeText(venue.public_id || record.venue_public_id || record.venuePublicId, ''),
-    season: safeText(season.name || record.season || 'General'),
-    seasonPublicId: safeText(season.public_id || record.season_public_id || record.seasonPublicId, ''),
-    coachPublicIds: Array.isArray(record.coaches) ? record.coaches.map(item => item.public_id).filter(Boolean) : [],
-    athletePublicIds: Array.isArray(record.athletes) ? record.athletes.map(item => item.public_id).filter(Boolean) : [],
-    category: safeText(record.category?.name || record.category),
-    description: safeText(record.description || record.notes || 'No extra details available.'),
+    name: safeText(record.name),
+    date: safeText(record.date),
+    season: resolveSeasonName(record),
+    seasonPublicId: safeText(record.season?.public_id || record.season_public_id || record.seasonPublicId, ''),
+    venue: resolveVenueName(record),
+    venuePublicId: safeText(record.venue?.public_id || record.venue_public_id || record.venuePublicId, ''),
+    coachPublicIds: coaches.map(item => item.public_id).filter(Boolean),
+    athletePublicIds: athletes.map(item => item.public_id).filter(Boolean),
+    coachNames: coaches.map(item => item.display_name).filter(Boolean),
+    athleteNames: athletes.map(item => item.display_name).filter(Boolean),
+    athleteCount: athletes.length,
+    score: record.score || null,
   };
 }

@@ -1,43 +1,36 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import './CompetitionForm.css';
 
 const EMPTY_FORM = {
   name: '',
   date: '',
-  status: 'scheduled',
-  venue: '',
+  venue_public_id: '',
   season_public_id: '',
-  category: '',
-  description: '',
+  coach_public_ids: [],
+  athlete_public_ids: [],
 };
-
-const STATUSES = ['scheduled', 'finished', 'cancelled'];
 
 function toDateInputValue(value) {
   if (!value) return '';
   return String(value).slice(0, 10);
 }
 
-export default function CompetitionForm({ competition = null, seasons = [], onSubmit, onCancel, isLoading = false }) {
+function toApiDate(value) {
+  if (!value) return null;
+  return `${value}T00:00:00Z`;
+}
+
+export default function CompetitionForm({ competition = null, seasons = [], venues = [], onSubmit, onCancel, isLoading = false }) {
   const [form, setForm] = useState(competition ? {
     name: competition.name || '',
     date: toDateInputValue(competition.date),
-    status: competition.status || 'scheduled',
-    venue: competition.venue || '',
+    venue_public_id: competition.venuePublicId || '',
     season_public_id: competition.seasonPublicId || '',
-    category: competition.category || '',
-    description: competition.description || '',
+    coach_public_ids: competition.coachPublicIds || [],
+    athlete_public_ids: competition.athletePublicIds || [],
   } : EMPTY_FORM);
 
   const [errors, setErrors] = useState({});
-
-  useEffect(() => {
-    if (form.season_public_id || !seasons.length) return;
-    setForm(prev => ({
-      ...prev,
-      season_public_id: seasons[0].publicId || seasons[0].id || '',
-    }));
-  }, [form.season_public_id, seasons]);
 
   function validateForm() {
     const newErrors = {};
@@ -59,7 +52,11 @@ export default function CompetitionForm({ competition = null, seasons = [], onSu
   function handleSubmit(e) {
     e.preventDefault();
     if (!validateForm()) return;
-    onSubmit(form);
+    onSubmit({
+      ...form,
+      date: toApiDate(form.date),
+      venue_public_id: form.venue_public_id || null,
+    });
   }
 
   const title = competition ? '✏️ Edit Competition' : '➕ Add Competition';
@@ -99,30 +96,21 @@ export default function CompetitionForm({ competition = null, seasons = [], onSu
         </div>
 
         <div className="form-group">
-          <label htmlFor="status">Status</label>
+          <label htmlFor="venue_public_id">Venue</label>
           <select
-            id="status"
-            name="status"
-            value={form.status}
+            id="venue_public_id"
+            name="venue_public_id"
+            value={form.venue_public_id}
             onChange={handleChange}
             disabled={isLoading}
           >
-            {STATUSES.map(s => (
-              <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+            <option value="">No venue</option>
+            {venues.map(venue => (
+              <option key={venue.publicId || venue.id} value={venue.publicId || venue.id}>
+                {venue.name}
+              </option>
             ))}
           </select>
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="venue">Venue</label>
-          <input
-            id="venue"
-            name="venue"
-            value={form.venue}
-            onChange={handleChange}
-            placeholder="e.g. Stadio Olimpico"
-            disabled={isLoading}
-          />
         </div>
 
         <div className="form-group">
@@ -145,30 +133,6 @@ export default function CompetitionForm({ competition = null, seasons = [], onSu
           {errors.season_public_id && <span className="error-text">{errors.season_public_id}</span>}
         </div>
 
-        <div className="form-group">
-          <label htmlFor="category">Category</label>
-          <input
-            id="category"
-            name="category"
-            value={form.category}
-            onChange={handleChange}
-            placeholder="e.g. U18, Open, Masters"
-            disabled={isLoading}
-          />
-        </div>
-
-        <div className="form-group full-width">
-          <label htmlFor="description">Description</label>
-          <textarea
-            id="description"
-            name="description"
-            placeholder="Event details and notes..."
-            value={form.description}
-            onChange={handleChange}
-            disabled={isLoading}
-            rows="4"
-          />
-        </div>
       </div>
 
       <div className="form-actions">

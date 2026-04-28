@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { getById, getList, updateResource, deleteResource } from '../api/client';
-import { normalizeCompetition, normalizeAthlete } from '../api/normalizers';
+import { normalizeCompetition, normalizeAthlete, normalizeVenue } from '../api/normalizers';
 import CompetitionForm from '../components/CompetitionForm/CompetitionForm';
 import EnrollmentForm from '../components/EnrollmentForm/EnrollmentForm';
 import Modal from '../components/common/Modal/Modal';
@@ -16,13 +16,13 @@ export default function CompetitionDetail() {
   const [competition, setCompetition] = useState(null);
   const [athletes, setAthletes] = useState([]);
   const [seasons, setSeasons] = useState([]);
+  const [venues, setVenues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [isEnrolling, setIsEnrolling] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [toast, setToast] = useState({ message: '', type: '' });
 
   useEffect(() => {
@@ -33,10 +33,11 @@ export default function CompetitionDetail() {
       setError('');
 
       try {
-        const [compRecord, athletesRecords, seasonRecords] = await Promise.all([
+        const [compRecord, athletesRecords, seasonRecords, venueRecords] = await Promise.all([
           getById('/scheduling/competitions', publicId),
           getList('/people/athletes'),
           getList('/scheduling/seasons'),
+          getList('/inventory/venues'),
         ]);
         
         if (!isMounted) return;
@@ -46,6 +47,7 @@ export default function CompetitionDetail() {
           publicId: season.public_id,
           name: season.name,
         })));
+        setVenues(venueRecords.map(normalizeVenue));
       } catch (requestError) {
         if (!isMounted) return;
         setError(requestError.message);
@@ -104,7 +106,6 @@ export default function CompetitionDetail() {
   }
 
   async function handleDelete() {
-    setIsDeleting(true);
     try {
       await deleteResource('/scheduling/competitions', publicId);
       setToast({ message: `✓ Competition deleted successfully!`, type: 'success' });
@@ -112,7 +113,6 @@ export default function CompetitionDetail() {
     } catch (err) {
       setToast({ message: `✕ Failed to delete: ${err.message}`, type: 'error' });
     } finally {
-      setIsDeleting(false);
       setShowDeleteModal(false);
     }
   }
@@ -127,6 +127,7 @@ export default function CompetitionDetail() {
         <CompetitionForm
           competition={competition}
           seasons={seasons}
+          venues={venues}
           onSubmit={handleUpdate}
           onCancel={() => setIsEditing(false)}
           isLoading={isSubmitting}
@@ -168,13 +169,11 @@ export default function CompetitionDetail() {
 
         <div className="detail-grid">
           <div><strong>Date:</strong> {competition.date}</div>
-          <div><strong>Status:</strong> {competition.status}</div>
           <div><strong>Venue:</strong> {competition.venue}</div>
           <div><strong>Season:</strong> {competition.season}</div>
-          <div><strong>Category:</strong> {competition.category}</div>
+          <div><strong>Coaches:</strong> {competition.coachNames.join(', ') || 'N/A'}</div>
+          <div><strong>Athletes:</strong> {competition.athleteNames.join(', ') || 'N/A'}</div>
         </div>
-
-        <p className="detail-description">{competition.description}</p>
 
         <div className="detail-back">
           <Link className="btn btn-outline" to="/competitions">← Back to Competitions</Link>

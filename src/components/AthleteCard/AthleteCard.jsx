@@ -8,31 +8,31 @@ export default function AthleteCard({ athlete }) {
         <div className="avatar athlete-avatar">{athlete.avatarInitials}</div>
         <div className="athlete-card-info">
           <h3 className="athlete-name">{athlete.name}</h3>
-          <p className="athlete-event">{athlete.event}</p>
+          <p className="athlete-event">{athlete.email}</p>
         </div>
-        <span className={`badge badge-${athlete.status}`}>{athlete.status}</span>
+        <span className="badge badge-active">#{athlete.jerseyNumber ?? '-'}</span>
       </div>
 
       <div className="athlete-card-body">
         <div className="athlete-detail-row">
-          <span className="detail-label">Category</span>
-          <span className="detail-value">{athlete.category}</span>
+          <span className="detail-label">Phone</span>
+          <span className="detail-value">{athlete.phone}</span>
         </div>
         <div className="athlete-detail-row">
-          <span className="detail-label">Personal Best</span>
-          <span className="detail-value detail-pb">{athlete.personalBest}</span>
+          <span className="detail-label">Date of Birth</span>
+          <span className="detail-value detail-pb">{athlete.joinedDate}</span>
         </div>
         <div className="athlete-detail-row">
-          <span className="detail-label">Age</span>
-          <span className="detail-value">{athlete.age} yrs</span>
+          <span className="detail-label">Height</span>
+          <span className="detail-value">{athlete.height ?? 'N/A'} cm</span>
         </div>
         <div className="athlete-detail-row">
-          <span className="detail-label">Nationality</span>
-          <span className="detail-value">{athlete.nationality}</span>
+          <span className="detail-label">Weight</span>
+          <span className="detail-value">{athlete.weight ?? 'N/A'} kg</span>
         </div>
         <div className="athlete-detail-row">
-          <span className="detail-label">Joined</span>
-          <span className="detail-value">{athlete.joinedDate}</span>
+          <span className="detail-label">Address</span>
+          <span className="detail-value">{athlete.addressLabel}</span>
         </div>
       </div>
 

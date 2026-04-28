@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getList, createResource } from '../api/client';
+import { normalizeVenue } from '../api/normalizers';
 import VenueList from '../components/VenueList/VenueList';
 import VenueForm from '../components/VenueForm/VenueForm';
 import LoadingState from '../components/common/LoadingState/LoadingState';
@@ -23,9 +24,9 @@ export default function Venues() {
       setError('');
 
       try {
-        const records = await getList('/locations/venues');
+        const records = await getList('/inventory/venues');
         if (!isMounted) return;
-        setVenues(records);
+        setVenues(records.map(normalizeVenue));
       } catch (requestError) {
         if (!isMounted) return;
         setError(requestError.message);
@@ -44,9 +45,10 @@ export default function Venues() {
   async function handleCreateVenue(formData) {
     setSubmitting(true);
     try {
-      const newVenue = await createResource('/locations/venues', formData);
-      setVenues(prev => [newVenue, ...prev]);
-      setToast({ message: `✓ Venue "${newVenue.name}" created successfully!`, type: 'success' });
+      const newVenue = await createResource('/inventory/venues', formData);
+      const normalized = normalizeVenue(newVenue);
+      setVenues(prev => [normalized, ...prev]);
+      setToast({ message: `✓ Venue "${normalized.name}" created successfully!`, type: 'success' });
       setShowForm(false);
     } catch (err) {
       setToast({ message: `✕ Failed to create venue: ${err.message}`, type: 'error' });

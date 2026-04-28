@@ -11,14 +11,14 @@ export default function VenueList({ venues }) {
     <div className="venue-list">
       <div className="venue-grid">
         {venues.map(venue => (
-          <Link key={venue.public_id || venue.id} to={`/venues/${venue.public_id || venue.id}`} className="venue-card card">
+          <Link key={venue.publicId || venue.id} to={`/venues/${venue.publicId || venue.id}`} className="venue-card card">
             <div className="venue-header">
               <h3 className="venue-name">📍 {venue.name}</h3>
             </div>
             <div className="venue-info">
-              <p><strong>City:</strong> {venue.city}</p>
-              <p><strong>Country:</strong> {venue.country}</p>
-              <p><strong>Capacity:</strong> {venue.capacity || 'N/A'}</p>
+              <p><strong>Type:</strong> {venue.venue_type}</p>
+              <p><strong>Indoor:</strong> {venue.indoor ? 'Yes' : 'No'}</p>
+              <p><strong>Capacity:</strong> {venue.capacity ?? 'N/A'}</p>
             </div>
             <button className="btn btn-primary btn-sm">View Detail →</button>
           </Link>

@@ -18,7 +18,6 @@ export default function CoachDetail() {
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [toast, setToast] = useState({ message: '', type: '' });
 
   useEffect(() => {
@@ -63,7 +62,6 @@ export default function CoachDetail() {
   }
 
   async function handleDelete() {
-    setIsDeleting(true);
     try {
       await deleteResource('/people/coaches', publicId);
       setToast({ message: `✓ Coach deleted successfully!`, type: 'success' });
@@ -71,7 +69,6 @@ export default function CoachDetail() {
     } catch (err) {
       setToast({ message: `✕ Failed to delete: ${err.message}`, type: 'error' });
     } finally {
-      setIsDeleting(false);
       setShowDeleteModal(false);
     }
   }
@@ -109,14 +106,11 @@ export default function CoachDetail() {
         </div>
 
         <div className="detail-grid">
-          <div><strong>Specialty:</strong> {coach.specialty}</div>
-          <div><strong>Status:</strong> {coach.status}</div>
-          <div><strong>Experience:</strong> {coach.experience}</div>
           <div><strong>Certification:</strong> {coach.certificationLevel}</div>
-          <div><strong>Athletes Coached:</strong> {coach.athleteCount}</div>
           <div><strong>Email:</strong> {coach.email}</div>
           <div><strong>Phone:</strong> {coach.phone}</div>
-          <div><strong>Age:</strong> {coach.age}</div>
+          <div><strong>Date of Birth:</strong> {coach.date_of_birth || 'N/A'}</div>
+          <div><strong>Address:</strong> {coach.addressLabel}</div>
         </div>
 
         <div className="detail-back">

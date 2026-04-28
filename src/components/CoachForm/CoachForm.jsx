@@ -4,24 +4,29 @@ import './CoachForm.css';
 const EMPTY_FORM = {
   first_name: '',
   last_name: '',
-  specialty: '',
-  certification_level: '',
-  experience: '',
-  status: 'active',
   email: '',
   phone: '',
+  date_of_birth: '',
+  certification: '',
 };
+
+const CERTIFICATIONS = [
+  '',
+  'tecnico_deportivo_grado_medio',
+  'tecnico_deportivo_grado_superior',
+  'entrenador_nacional',
+  'entrenador_club',
+  'nsca_cpt',
+];
 
 export default function CoachForm({ coach = null, onSubmit, onCancel, isLoading = false }) {
   const [form, setForm] = useState(coach ? {
     first_name: coach.first_name || coach.name?.split(' ')[0] || '',
     last_name: coach.last_name || coach.name?.split(' ').slice(1).join(' ') || '',
-    specialty: coach.specialty || '',
-    certification_level: coach.certificationLevel || '',
-    experience: coach.experience || '',
-    status: coach.status || 'active',
-    email: coach.email || '',
-    phone: coach.phone || '',
+    email: coach.email === '-' ? '' : (coach.email || ''),
+    phone: coach.phone === '-' ? '' : (coach.phone || ''),
+    date_of_birth: coach.date_of_birth || '',
+    certification: coach.certification || '',
   } : EMPTY_FORM);
 
   const [errors, setErrors] = useState({});
@@ -29,8 +34,10 @@ export default function CoachForm({ coach = null, onSubmit, onCancel, isLoading 
   function validateForm() {
     const newErrors = {};
     if (!form.first_name.trim()) newErrors.first_name = 'First name is required';
-    if (!form.specialty.trim()) newErrors.specialty = 'Specialty is required';
-    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+    if (!form.last_name.trim()) newErrors.last_name = 'Last name is required';
+    if (!form.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
       newErrors.email = 'Invalid email format';
     }
     setErrors(newErrors);
@@ -48,7 +55,11 @@ export default function CoachForm({ coach = null, onSubmit, onCancel, isLoading 
   function handleSubmit(e) {
     e.preventDefault();
     if (!validateForm()) return;
-    onSubmit(form);
+    onSubmit({
+      ...form,
+      date_of_birth: form.date_of_birth || null,
+      certification: form.certification || null,
+    });
   }
 
   const title = coach ? '✏️ Edit Coach' : '➕ Add New Coach';
@@ -74,7 +85,7 @@ export default function CoachForm({ coach = null, onSubmit, onCancel, isLoading 
         </div>
 
         <div className="form-group">
-          <label htmlFor="last_name">Last Name</label>
+          <label htmlFor="last_name">Last Name *</label>
           <input
             id="last_name"
             name="last_name"
@@ -82,45 +93,26 @@ export default function CoachForm({ coach = null, onSubmit, onCancel, isLoading 
             onChange={handleChange}
             placeholder="e.g. García"
             disabled={isLoading}
+            className={errors.last_name ? 'error' : ''}
           />
+          {errors.last_name && <span className="error-text">{errors.last_name}</span>}
         </div>
 
         <div className="form-group">
-          <label htmlFor="specialty">Specialty *</label>
-          <input
-            id="specialty"
-            name="specialty"
-            value={form.specialty}
+          <label htmlFor="certification">Certification</label>
+          <select
+            id="certification"
+            name="certification"
+            value={form.certification}
             onChange={handleChange}
-            placeholder="e.g. Sprint Coach"
             disabled={isLoading}
-            className={errors.specialty ? 'error' : ''}
-          />
-          {errors.specialty && <span className="error-text">{errors.specialty}</span>}
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="certification_level">Certification Level</label>
-          <input
-            id="certification_level"
-            name="certification_level"
-            value={form.certification_level}
-            onChange={handleChange}
-            placeholder="e.g. Level 2"
-            disabled={isLoading}
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="experience">Experience</label>
-          <input
-            id="experience"
-            name="experience"
-            value={form.experience}
-            onChange={handleChange}
-            placeholder="e.g. 10 years"
-            disabled={isLoading}
-          />
+          >
+            {CERTIFICATIONS.map(value => (
+              <option key={value || 'none'} value={value}>
+                {value || 'None'}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="form-group">
@@ -151,17 +143,15 @@ export default function CoachForm({ coach = null, onSubmit, onCancel, isLoading 
         </div>
 
         <div className="form-group">
-          <label htmlFor="status">Status</label>
-          <select
-            id="status"
-            name="status"
-            value={form.status}
+          <label htmlFor="date_of_birth">Date of Birth</label>
+          <input
+            id="date_of_birth"
+            name="date_of_birth"
+            type="date"
+            value={form.date_of_birth}
             onChange={handleChange}
             disabled={isLoading}
-          >
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
+          />
         </div>
       </div>
 

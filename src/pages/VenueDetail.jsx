@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { getById, updateResource, deleteResource } from '../api/client';
+import { normalizeVenue } from '../api/normalizers';
 import VenueForm from '../components/VenueForm/VenueForm';
 import Modal from '../components/common/Modal/Modal';
 import Toast from '../components/common/Toast/Toast';
@@ -17,7 +18,6 @@ export default function VenueDetail() {
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [toast, setToast] = useState({ message: '', type: '' });
 
   useEffect(() => {
@@ -28,9 +28,9 @@ export default function VenueDetail() {
       setError('');
 
       try {
-        const record = await getById('/locations/venues', publicId);
+        const record = await getById('/inventory/venues', publicId);
         if (!isMounted) return;
-        setVenue(record);
+        setVenue(normalizeVenue(record));
       } catch (requestError) {
         if (!isMounted) return;
         setError(requestError.message);
@@ -49,8 +49,8 @@ export default function VenueDetail() {
   async function handleUpdate(formData) {
     setIsSubmitting(true);
     try {
-      const updated = await updateResource('/locations/venues', publicId, formData);
-      setVenue(updated);
+      const updated = await updateResource('/inventory/venues', publicId, formData);
+      setVenue(normalizeVenue(updated));
       setToast({ message: `✓ Venue updated successfully!`, type: 'success' });
       setIsEditing(false);
     } catch (err) {
@@ -61,15 +61,13 @@ export default function VenueDetail() {
   }
 
   async function handleDelete() {
-    setIsDeleting(true);
     try {
-      await deleteResource('/locations/venues', publicId);
+      await deleteResource('/inventory/venues', publicId);
       setToast({ message: `✓ Venue deleted successfully!`, type: 'success' });
       setTimeout(() => navigate('/venues'), 1500);
     } catch (err) {
       setToast({ message: `✕ Failed to delete: ${err.message}`, type: 'error' });
     } finally {
-      setIsDeleting(false);
       setShowDeleteModal(false);
     }
   }
@@ -98,7 +96,7 @@ export default function VenueDetail() {
         <div className="page-header detail-page-header">
           <div className="page-header-info">
             <h1>📍 {venue.name}</h1>
-            <p>Venue detail loaded from /locations/venues/{publicId}</p>
+            <p>Venue detail loaded from /inventory/venues/{publicId}</p>
           </div>
           <div className="detail-actions">
             <button className="btn btn-primary" onClick={() => setIsEditing(true)}>✏️ Edit</button>
@@ -107,10 +105,10 @@ export default function VenueDetail() {
         </div>
 
         <div className="detail-grid">
-          <div><strong>City:</strong> {venue.city}</div>
-          <div><strong>Country:</strong> {venue.country}</div>
-          <div><strong>Capacity:</strong> {venue.capacity}</div>
-          <div><strong>Surface Type:</strong> {venue.surface_type}</div>
+          <div><strong>Type:</strong> {venue.venue_type}</div>
+          <div><strong>Indoor:</strong> {venue.indoor ? 'Yes' : 'No'}</div>
+          <div><strong>Capacity:</strong> {venue.capacity ?? 'N/A'}</div>
+          <div><strong>Address:</strong> {venue.addressLabel}</div>
         </div>
 
         <div className="detail-back">

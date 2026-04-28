@@ -15,14 +15,14 @@ export default function CompetitionCard({ competition }) {
     <article className="competition-card card">
       <div className="competition-card-top">
         <h3>{competition.name}</h3>
-        <span className={`badge badge-${competition.status}`}>{competition.status}</span>
+        <span className="badge badge-active">{competition.athleteCount} athletes</span>
       </div>
 
       <div className="competition-card-body">
         <p><strong>Date:</strong> {prettyDate}</p>
         <p><strong>Venue:</strong> {competition.venue}</p>
         <p><strong>Season:</strong> {competition.season}</p>
-        <p><strong>Category:</strong> {competition.category}</p>
+        <p><strong>Coaches:</strong> {competition.coachNames.length || 0}</p>
       </div>
 
       <Link className="btn btn-primary btn-sm" to={`/competitions/${competition.publicId || competition.id}`}>

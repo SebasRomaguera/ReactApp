@@ -71,14 +71,14 @@ If not provided, the app uses `http://localhost:8000/api/v1` by default.
    - DELETE `/scheduling/competitions/{publicId}` - Delete competition
 
 5. **Enroll Athletes in Competitions** (NEW - Create enrollment)
-   - POST `/scheduling/competitions/{publicId}/enrollments` - Enroll athlete
+   - PUT `/scheduling/competitions/{publicId}` with `athlete_public_ids` - Enroll athlete
 
 6. **Manage Training Venues** (NEW - Complete CRUD)
    - GET `/venues` - View all venues
    - GET `/venues/{publicId}` - View venue detail
-   - POST `/locations/venues` - Create new venue
-   - PUT `/locations/venues/{publicId}` - Update venue
-   - DELETE `/locations/venues/{publicId}` - Delete venue
+   - POST `/inventory/venues` - Create new venue
+   - PUT `/inventory/venues/{publicId}` - Update venue
+   - DELETE `/inventory/venues/{publicId}` - Delete venue
 
 ### Routes
 
@@ -162,30 +162,30 @@ The Docker setup includes:
 - `/scheduling/trainings` - List trainings
 - `/scheduling/competitions` - List competitions
 - `/scheduling/competitions/{public_id}` - Get competition
-- `/locations/venues` - List venues
-- `/locations/venues/{public_id}` - Get venue
+- `/inventory/venues` - List venues
+- `/inventory/venues/{public_id}` - Get venue
 
 ### POST (Create)
 - `/people/athletes` - Create athlete
 - `/people/coaches` - Create coach
 - `/scheduling/trainings` - Create training
 - `/scheduling/competitions` - Create competition
-- `/scheduling/competitions/{public_id}/enrollments` - Enroll athlete
-- `/locations/venues` - Create venue
+- `/scheduling/competitions/{public_id}` - Update competition athletes for enrollment
+- `/inventory/venues` - Create venue
 
 ### PUT (Update)
 - `/people/athletes/{public_id}` - Update athlete
 - `/people/coaches/{public_id}` - Update coach
 - `/scheduling/trainings/{public_id}` - Update training
 - `/scheduling/competitions/{public_id}` - Update competition
-- `/locations/venues/{public_id}` - Update venue
+- `/inventory/venues/{public_id}` - Update venue
 
 ### DELETE
 - `/people/athletes/{public_id}` - Delete athlete
 - `/people/coaches/{public_id}` - Delete coach
 - `/scheduling/trainings/{public_id}` - Delete training
 - `/scheduling/competitions/{public_id}` - Delete competition
-- `/locations/venues/{public_id}` - Delete venue
+- `/inventory/venues/{public_id}` - Delete venue
 
 ## Deliverables
 

@@ -2,37 +2,33 @@ import { useState } from 'react';
 import './TrainingForm.css';
 
 const EMPTY_FORM = {
-  title: '',
-  type: 'training',
+  name: '',
   date: '',
-  time: '',
-  duration: '',
-  intensity: 'Medium',
-  description: '',
-  location: '',
+  season_public_id: '',
+  venue_public_id: '',
+  focus: '',
+  coach_public_ids: [],
+  athlete_public_ids: [],
 };
 
-const TYPES = ['training', 'competition', 'recovery'];
-const INTENSITIES = ['Low', 'Medium', 'High'];
-
-export default function TrainingForm({ training = null, onSubmit, onCancel, isLoading = false }) {
+export default function TrainingForm({ training = null, seasons = [], venues = [], onSubmit, onCancel, isLoading = false }) {
   const [form, setForm] = useState(training ? {
-    title: training.title || '',
-    type: training.type || 'training',
-    date: training.date || '',
-    time: training.time || '',
-    duration: training.duration || '',
-    intensity: training.intensity || 'Medium',
-    description: training.description || '',
-    location: training.location || '',
+    name: training.name || '',
+    date: String(training.date || '').slice(0, 10),
+    season_public_id: training.seasonPublicId || '',
+    venue_public_id: training.venuePublicId || '',
+    focus: training.focus || '',
+    coach_public_ids: training.coachPublicIds || [],
+    athlete_public_ids: training.athletePublicIds || [],
   } : EMPTY_FORM);
 
   const [errors, setErrors] = useState({});
 
   function validateForm() {
     const newErrors = {};
-    if (!form.title.trim()) newErrors.title = 'Title is required';
+    if (!form.name.trim()) newErrors.name = 'Name is required';
     if (!form.date) newErrors.date = 'Date is required';
+    if (!form.season_public_id) newErrors.season_public_id = 'Season is required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }
@@ -48,7 +44,11 @@ export default function TrainingForm({ training = null, onSubmit, onCancel, isLo
   function handleSubmit(e) {
     e.preventDefault();
     if (!validateForm()) return;
-    onSubmit(form);
+    onSubmit({
+      ...form,
+      date: `${form.date}T00:00:00Z`,
+      venue_public_id: form.venue_public_id || null,
+    });
   }
 
   const title = training ? '✏️ Edit Session' : '➕ Add Training Session';
@@ -60,32 +60,17 @@ export default function TrainingForm({ training = null, onSubmit, onCancel, isLo
       
       <div className="form-grid">
         <div className="form-group">
-          <label htmlFor="title">Session Title *</label>
+          <label htmlFor="name">Session Name *</label>
           <input
-            id="title"
-            name="title"
-            value={form.title}
+            id="name"
+            name="name"
+            value={form.name}
             onChange={handleChange}
             placeholder="e.g. Sprint Training"
             disabled={isLoading}
-            className={errors.title ? 'error' : ''}
+            className={errors.name ? 'error' : ''}
           />
-          {errors.title && <span className="error-text">{errors.title}</span>}
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="type">Type</label>
-          <select
-            id="type"
-            name="type"
-            value={form.type}
-            onChange={handleChange}
-            disabled={isLoading}
-          >
-            {TYPES.map(t => (
-              <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>
-            ))}
-          </select>
+          {errors.name && <span className="error-text">{errors.name}</span>}
         </div>
 
         <div className="form-group">
@@ -103,66 +88,52 @@ export default function TrainingForm({ training = null, onSubmit, onCancel, isLo
         </div>
 
         <div className="form-group">
-          <label htmlFor="time">Time</label>
-          <input
-            id="time"
-            name="time"
-            type="time"
-            value={form.time}
-            onChange={handleChange}
-            disabled={isLoading}
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="duration">Duration</label>
-          <input
-            id="duration"
-            name="duration"
-            placeholder="e.g. 90 min"
-            value={form.duration}
-            onChange={handleChange}
-            disabled={isLoading}
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="intensity">Intensity</label>
+          <label htmlFor="season_public_id">Season *</label>
           <select
-            id="intensity"
-            name="intensity"
-            value={form.intensity}
+            id="season_public_id"
+            name="season_public_id"
+            value={form.season_public_id}
+            onChange={handleChange}
+            disabled={isLoading}
+            className={errors.season_public_id ? 'error' : ''}
+          >
+            <option value="">Select season</option>
+            {seasons.map(season => (
+              <option key={season.publicId || season.id} value={season.publicId || season.id}>
+                {season.name}
+              </option>
+            ))}
+          </select>
+          {errors.season_public_id && <span className="error-text">{errors.season_public_id}</span>}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="venue_public_id">Venue</label>
+          <select
+            id="venue_public_id"
+            name="venue_public_id"
+            value={form.venue_public_id}
             onChange={handleChange}
             disabled={isLoading}
           >
-            {INTENSITIES.map(i => (
-              <option key={i} value={i}>{i}</option>
+            <option value="">No venue</option>
+            {venues.map(venue => (
+              <option key={venue.publicId || venue.id} value={venue.publicId || venue.id}>
+                {venue.name}
+              </option>
             ))}
           </select>
         </div>
 
         <div className="form-group full-width">
-          <label htmlFor="location">Location</label>
+          <label htmlFor="focus">Focus</label>
           <input
-            id="location"
-            name="location"
-            placeholder="e.g. Stadium A, Track 1"
-            value={form.location}
+            id="focus"
+            name="focus"
+            placeholder="e.g. Sprint technique"
+            value={form.focus}
             onChange={handleChange}
             disabled={isLoading}
-          />
-        </div>
-
-        <div className="form-group full-width">
-          <label htmlFor="description">Description</label>
-          <textarea
-            id="description"
-            name="description"
-            placeholder="Session notes and details..."
-            value={form.description}
-            onChange={handleChange}
-            disabled={isLoading}
-            rows="4"
           />
         </div>
       </div>

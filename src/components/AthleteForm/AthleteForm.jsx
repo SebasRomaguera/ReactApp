@@ -4,26 +4,24 @@ import './AthleteForm.css';
 const EMPTY_FORM = {
   first_name: '',
   last_name: '',
-  age: '',
-  category: 'Sprint',
-  event: '',
-  personal_best: '',
-  nationality: '',
-  status: 'active',
+  email: '',
+  phone: '',
+  date_of_birth: '',
+  height: '',
+  weight: '',
+  jersey_number: '',
 };
-
-const CATEGORIES = ['Sprint', 'Long Distance', 'Jump', 'Throw', 'Multi-event'];
 
 export default function AthleteForm({ athlete = null, onSubmit, onCancel, isLoading = false }) {
   const [form, setForm] = useState(athlete ? {
     first_name: athlete.first_name || athlete.name?.split(' ')[0] || '',
     last_name: athlete.last_name || athlete.name?.split(' ').slice(1).join(' ') || '',
-    age: athlete.age || '',
-    category: athlete.category || 'Sprint',
-    event: athlete.event || '',
-    personal_best: athlete.personalBest || '',
-    nationality: athlete.nationality || '',
-    status: athlete.status || 'active',
+    email: athlete.email === '-' ? '' : (athlete.email || ''),
+    phone: athlete.phone === '-' ? '' : (athlete.phone || ''),
+    date_of_birth: athlete.date_of_birth || '',
+    height: athlete.height ?? '',
+    weight: athlete.weight ?? '',
+    jersey_number: athlete.jersey_number ?? '',
   } : EMPTY_FORM);
 
   const [errors, setErrors] = useState({});
@@ -31,8 +29,21 @@ export default function AthleteForm({ athlete = null, onSubmit, onCancel, isLoad
   function validateForm() {
     const newErrors = {};
     if (!form.first_name.trim()) newErrors.first_name = 'First name is required';
-    if (!form.event.trim()) newErrors.event = 'Event is required';
-    if (form.age && (isNaN(form.age) || form.age < 0)) newErrors.age = 'Age must be a valid number';
+    if (!form.last_name.trim()) newErrors.last_name = 'Last name is required';
+    if (!form.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      newErrors.email = 'Invalid email format';
+    }
+    if (form.height !== '' && (isNaN(form.height) || Number(form.height) <= 0)) {
+      newErrors.height = 'Height must be a positive number';
+    }
+    if (form.weight !== '' && (isNaN(form.weight) || Number(form.weight) <= 0)) {
+      newErrors.weight = 'Weight must be a positive number';
+    }
+    if (form.jersey_number !== '' && (isNaN(form.jersey_number) || Number(form.jersey_number) < 0)) {
+      newErrors.jersey_number = 'Jersey number must be a valid number';
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }
@@ -48,7 +59,13 @@ export default function AthleteForm({ athlete = null, onSubmit, onCancel, isLoad
   function handleSubmit(e) {
     e.preventDefault();
     if (!validateForm()) return;
-    onSubmit(form);
+    onSubmit({
+      ...form,
+      height: form.height === '' ? null : Number(form.height),
+      weight: form.weight === '' ? null : Number(form.weight),
+      jersey_number: form.jersey_number === '' ? null : Number(form.jersey_number),
+      date_of_birth: form.date_of_birth || null,
+    });
   }
 
   const title = athlete ? '✏️ Edit Athlete' : '➕ Add New Athlete';
@@ -74,7 +91,7 @@ export default function AthleteForm({ athlete = null, onSubmit, onCancel, isLoad
         </div>
 
         <div className="form-group">
-          <label htmlFor="last_name">Last Name</label>
+          <label htmlFor="last_name">Last Name *</label>
           <input
             id="last_name"
             name="last_name"
@@ -82,91 +99,95 @@ export default function AthleteForm({ athlete = null, onSubmit, onCancel, isLoad
             onChange={handleChange}
             placeholder="e.g. Pérez"
             disabled={isLoading}
+            className={errors.last_name ? 'error' : ''}
+          />
+          {errors.last_name && <span className="error-text">{errors.last_name}</span>}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="email">Email *</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            value={form.email}
+            onChange={handleChange}
+            placeholder="athlete@example.com"
+            disabled={isLoading}
+            className={errors.email ? 'error' : ''}
+          />
+          {errors.email && <span className="error-text">{errors.email}</span>}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="phone">Phone</label>
+          <input
+            id="phone"
+            name="phone"
+            value={form.phone}
+            onChange={handleChange}
+            placeholder="+34 600 000 000"
+            disabled={isLoading}
           />
         </div>
 
         <div className="form-group">
-          <label htmlFor="age">Age</label>
+          <label htmlFor="date_of_birth">Date of Birth</label>
           <input
-            id="age"
-            name="age"
+            id="date_of_birth"
+            name="date_of_birth"
+            type="date"
+            value={form.date_of_birth}
+            onChange={handleChange}
+            disabled={isLoading}
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="height">Height (cm)</label>
+          <input
+            id="height"
+            name="height"
             type="number"
-            min="14"
-            max="60"
-            value={form.age}
+            step="0.1"
+            value={form.height}
             onChange={handleChange}
-            placeholder="22"
+            placeholder="e.g. 183"
             disabled={isLoading}
-            className={errors.age ? 'error' : ''}
+            className={errors.height ? 'error' : ''}
           />
-          {errors.age && <span className="error-text">{errors.age}</span>}
+          {errors.height && <span className="error-text">{errors.height}</span>}
         </div>
 
         <div className="form-group">
-          <label htmlFor="category">Category</label>
-          <select
-            id="category"
-            name="category"
-            value={form.category}
-            onChange={handleChange}
-            disabled={isLoading}
-          >
-            {CATEGORIES.map(c => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="event">Event *</label>
+          <label htmlFor="weight">Weight (kg)</label>
           <input
-            id="event"
-            name="event"
-            value={form.event}
+            id="weight"
+            name="weight"
+            type="number"
+            step="0.1"
+            value={form.weight}
             onChange={handleChange}
-            placeholder="e.g. 100m"
+            placeholder="e.g. 63"
             disabled={isLoading}
-            className={errors.event ? 'error' : ''}
+            className={errors.weight ? 'error' : ''}
           />
-          {errors.event && <span className="error-text">{errors.event}</span>}
+          {errors.weight && <span className="error-text">{errors.weight}</span>}
         </div>
 
         <div className="form-group">
-          <label htmlFor="personal_best">Personal Best</label>
+          <label htmlFor="jersey_number">Jersey Number</label>
           <input
-            id="personal_best"
-            name="personal_best"
-            value={form.personal_best}
+            id="jersey_number"
+            name="jersey_number"
+            type="number"
+            value={form.jersey_number}
             onChange={handleChange}
-            placeholder="e.g. 10.45s"
+            placeholder="e.g. 9"
             disabled={isLoading}
+            className={errors.jersey_number ? 'error' : ''}
           />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="nationality">Nationality</label>
-          <input
-            id="nationality"
-            name="nationality"
-            value={form.nationality}
-            onChange={handleChange}
-            placeholder="e.g. Spanish"
-            disabled={isLoading}
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="status">Status</label>
-          <select
-            id="status"
-            name="status"
-            value={form.status}
-            onChange={handleChange}
-            disabled={isLoading}
-          >
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
+          {errors.jersey_number && <span className="error-text">{errors.jersey_number}</span>}
         </div>
       </div>
 

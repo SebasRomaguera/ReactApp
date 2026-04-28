@@ -8,27 +8,27 @@ export default function CoachCard({ coach }) {
         <div className="avatar coach-avatar">{coach.avatarInitials}</div>
         <div className="coach-card-info">
           <h3 className="coach-name">{coach.name}</h3>
-          <p className="coach-specialty">{coach.specialty}</p>
+          <p className="coach-specialty">{coach.certificationLevel || 'No certification'}</p>
         </div>
-        <span className={`badge badge-${coach.status}`}>{coach.status}</span>
+        <span className="badge badge-active">Coach</span>
       </div>
 
       <div className="coach-card-body">
         <div className="coach-detail-row">
-          <span className="detail-label">Experience</span>
-          <span className="detail-value">{coach.experience}</span>
+          <span className="detail-label">Email</span>
+          <span className="detail-value">{coach.email}</span>
         </div>
         <div className="coach-detail-row">
           <span className="detail-label">Certification</span>
           <span className="detail-value cert-value">{coach.certificationLevel}</span>
         </div>
         <div className="coach-detail-row">
-          <span className="detail-label">Athletes</span>
-          <span className="detail-value">{coach.athleteCount} athletes</span>
+          <span className="detail-label">Phone</span>
+          <span className="detail-value">{coach.phone}</span>
         </div>
         <div className="coach-detail-row">
-          <span className="detail-label">Age</span>
-          <span className="detail-value">{coach.age} yrs</span>
+          <span className="detail-label">Address</span>
+          <span className="detail-value">{coach.addressLabel}</span>
         </div>
       </div>
 

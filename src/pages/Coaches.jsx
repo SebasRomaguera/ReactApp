@@ -56,8 +56,7 @@ export default function Coaches() {
     }
   }
 
-  // Aggregate total athlete load across the coaching staff.
-  const totalAthletes = coaches.reduce((sum, c) => sum + c.athleteCount, 0);
+  const withCertification = coaches.filter(c => c.certificationLevel && c.certificationLevel !== '-').length;
 
   return (
     <div>
@@ -86,12 +85,12 @@ export default function Coaches() {
           <div className="stat-label">Total Coaches</div>
         </div>
         <div className="stat-card accent-green">
-          <div className="stat-value">{coaches.filter(c => c.status === 'active').length}</div>
-          <div className="stat-label">Active</div>
+          <div className="stat-value">{withCertification}</div>
+          <div className="stat-label">Certified</div>
         </div>
         <div className="stat-card accent-gold">
-          <div className="stat-value">{totalAthletes}</div>
-          <div className="stat-label">Athletes Coached</div>
+          <div className="stat-value">{coaches.filter(c => c.email && c.email !== '-').length}</div>
+          <div className="stat-label">With Email</div>
         </div>
       </div>
 

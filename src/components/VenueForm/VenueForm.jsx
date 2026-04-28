@@ -3,19 +3,19 @@ import './VenueForm.css';
 
 const EMPTY_FORM = {
   name: '',
-  city: '',
-  country: '',
+  venue_type: 'FIELD',
   capacity: '',
-  surface_type: '',
+  indoor: false,
 };
+
+const VENUE_TYPES = ['stadium', 'gymnasium', 'TRACK', 'FIELD'];
 
 export default function VenueForm({ venue = null, onSubmit, onCancel, isLoading = false }) {
   const [form, setForm] = useState(venue ? {
     name: venue.name || '',
-    city: venue.city || '',
-    country: venue.country || '',
+    venue_type: venue.venue_type || 'FIELD',
     capacity: venue.capacity || '',
-    surface_type: venue.surface_type || '',
+    indoor: Boolean(venue.indoor),
   } : EMPTY_FORM);
 
   const [errors, setErrors] = useState({});
@@ -23,7 +23,6 @@ export default function VenueForm({ venue = null, onSubmit, onCancel, isLoading 
   function validateForm() {
     const newErrors = {};
     if (!form.name.trim()) newErrors.name = 'Venue name is required';
-    if (!form.city.trim()) newErrors.city = 'City is required';
     if (form.capacity && (isNaN(form.capacity) || form.capacity < 0)) {
       newErrors.capacity = 'Capacity must be a valid number';
     }
@@ -32,8 +31,11 @@ export default function VenueForm({ venue = null, onSubmit, onCancel, isLoading 
   }
 
   function handleChange(e) {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
+    if (type === 'checkbox') {
+      setForm(prev => ({ ...prev, [name]: checked }));
+    }
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -42,7 +44,10 @@ export default function VenueForm({ venue = null, onSubmit, onCancel, isLoading 
   function handleSubmit(e) {
     e.preventDefault();
     if (!validateForm()) return;
-    onSubmit(form);
+    onSubmit({
+      ...form,
+      capacity: form.capacity === '' ? null : Number(form.capacity),
+    });
   }
 
   const title = venue ? '✏️ Edit Venue' : '➕ Add Venue';
@@ -68,29 +73,32 @@ export default function VenueForm({ venue = null, onSubmit, onCancel, isLoading 
         </div>
 
         <div className="form-group">
-          <label htmlFor="city">City *</label>
-          <input
-            id="city"
-            name="city"
-            value={form.city}
+          <label htmlFor="venue_type">Venue Type</label>
+          <select
+            id="venue_type"
+            name="venue_type"
+            value={form.venue_type}
             onChange={handleChange}
-            placeholder="e.g. Madrid"
             disabled={isLoading}
-            className={errors.city ? 'error' : ''}
-          />
-          {errors.city && <span className="error-text">{errors.city}</span>}
+          >
+            {VENUE_TYPES.map(type => (
+              <option key={type} value={type}>{type}</option>
+            ))}
+          </select>
         </div>
 
         <div className="form-group">
-          <label htmlFor="country">Country</label>
-          <input
-            id="country"
-            name="country"
-            value={form.country}
-            onChange={handleChange}
-            placeholder="e.g. Spain"
-            disabled={isLoading}
-          />
+          <label htmlFor="indoor">Indoor</label>
+          <div>
+            <input
+              id="indoor"
+              name="indoor"
+              type="checkbox"
+              checked={form.indoor}
+              onChange={handleChange}
+              disabled={isLoading}
+            />
+          </div>
         </div>
 
         <div className="form-group">
@@ -108,17 +116,6 @@ export default function VenueForm({ venue = null, onSubmit, onCancel, isLoading 
           {errors.capacity && <span className="error-text">{errors.capacity}</span>}
         </div>
 
-        <div className="form-group">
-          <label htmlFor="surface_type">Surface Type</label>
-          <input
-            id="surface_type"
-            name="surface_type"
-            value={form.surface_type}
-            onChange={handleChange}
-            placeholder="e.g. Synthetic, Natural Grass"
-            disabled={isLoading}
-          />
-        </div>
       </div>
 
       <div className="form-actions">

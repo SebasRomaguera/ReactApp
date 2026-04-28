@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import './EnrollmentForm.css';
 
 export default function EnrollmentForm({ competition = null, availableAthletes = [], onSubmit, onCancel, isLoading = false }) {
